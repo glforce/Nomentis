@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hordes>
+    <default duration="60" delay="5" />
+    <long duration="5000" waves="100" />
+</hordes>
