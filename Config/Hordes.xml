@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hordes>
-    <default duration="60" delay="5" />
-    <long duration="5000" waves="100" />
+    <default duration="60" delay="5">
+        <type name="CorruptedHorror" weight="1" />
+    </default>
+    <long duration="5000" waves="100">
+        <type name="CorruptedHorror" weight="1" />
+        <type name="Unicorn" weight="2" />
+    </long>
 </hordes>

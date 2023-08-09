@@ -6,14 +6,16 @@ using Server.Commands;
 using Server.Mobiles;
 using Server.Network;
 using System.Xml;
+using System.Web.UI;
 
 namespace Server.Services.Horde
 {
 	public struct HordeConfig
 	{
-		public double Duration { get; set; }
+		public TimeSpan Duration { get; set; }
 		public uint WaveCount { get; set; }
-		public double DelayBetweenWaves { get; set; }
+		public TimeSpan DelayBetweenWaves { get; set; }
+		public List<Tuple<Type, int>> SpawnedTypes { get; set; }
 	}
 
 	public class HordeSystem
@@ -46,30 +48,47 @@ namespace Server.Services.Horde
 			{
 				HordeConfig Config = new HordeConfig()
 				{
-					Duration = double.Parse(Node.Attributes["duration"]?.Value ?? "1"),
+					Duration = TimeSpan.FromSeconds(double.Parse(Node.Attributes["duration"]?.Value ?? "1")),
 					WaveCount = uint.Parse(Node.Attributes["waves"]?.Value ?? "0"),
-					DelayBetweenWaves = double.Parse(Node.Attributes["delay"]?.Value ?? "0")
+					DelayBetweenWaves = TimeSpan.FromSeconds(double.Parse(Node.Attributes["delay"]?.Value ?? "0")),
+					SpawnedTypes = LoadHordeConfigSpawnedTypes(Node)
 				};
 
 				HordeConfigs.Add(Node.Name, Config);
 			}
 		}
 
+		private static List<Tuple<Type, int>> LoadHordeConfigSpawnedTypes(XmlNode HordeNode)
+		{
+			List<Tuple<Type, int>> SpawnedTypes = new List<Tuple<Type, int>>();
+
+			foreach(XmlNode Node in HordeNode.ChildNodes)
+			{
+				Type Type = SpawnerType.GetType(Node.Attributes["name"].Value);
+				if (Type != null && Type.IsSubclassOf(typeof(BaseCreature)))
+				{
+					SpawnedTypes.Add(new Tuple<Type, int>(Type, int.Parse(Node.Attributes["weight"].Value)));
+				}
+			}
+
+			return SpawnedTypes;
+		}
+
 		public static void OnSave(WorldSaveEventArgs e)
 		{
 			Persistence.Serialize(
 			   SaveFilePath,
-			   writer =>
+			   Writer =>
 			   {
 				   if (IsCurrentHordeActive())
 				   {
-					   writer.Write(true);
+					   Writer.Write(true);
 
-					   CurrentHorde.Serialize(writer);
+					   CurrentHorde.Serialize(Writer);
 				   }
 				   else
 				   {
-					   writer.Write(false);
+					   Writer.Write(false);
 				   }
 			   });
 		}
@@ -78,12 +97,12 @@ namespace Server.Services.Horde
 		{
 			Persistence.Deserialize(
 			   SaveFilePath,
-			   reader =>
+			   Reader =>
 			   {
-				   if(reader.ReadBool())
+				   if(Reader.ReadBool())
 				   {
 					   CurrentHorde = new Horde();
-					   CurrentHorde.Deserialize(reader);
+					   CurrentHorde.Deserialize(Reader);
 
 					   CurrentHorde.Resume();
 				   }
@@ -149,6 +168,7 @@ namespace Server.Services.Horde
 			private TimeSpan Duration;
 			private uint WaveCount = 0;
 			private TimeSpan DelayBetweenWaves;
+			private List<Type> SpawnedTypes;
 
 			private DateTime StartTime;
 			private DateTime EndTime;
@@ -162,17 +182,41 @@ namespace Server.Services.Horde
 			public Horde(HordeConfig Config)
 			{
 				Setup(
-					TimeSpan.FromSeconds(Config.Duration),
+					Config.Duration,
 					Config.WaveCount > 0 ? Config.WaveCount : int.MaxValue,
-					TimeSpan.FromSeconds(Config.DelayBetweenWaves > 0.0 ? Config.DelayBetweenWaves : Config.Duration / (WaveCount + 1))
+					Config.DelayBetweenWaves != TimeSpan.Zero ? Config.DelayBetweenWaves : TimeSpan.FromTicks(Config.Duration.Ticks / (WaveCount + 1)),
+					GetSpawnedTypesFromWeightedList(Config.SpawnedTypes)
 				);
 			}
 
-			private void Setup(TimeSpan Duration, uint WaveCount, TimeSpan DelayBetweenWaves)
+			private static List<Type> GetSpawnedTypesFromWeightedList(List<Tuple<Type, int>> WeightedList)
+			{
+				List<Type> SpawnedTypes = new List<Type>();
+
+				if (WeightedList.Count == 0)
+				{
+					SpawnedTypes.Add(typeof(CorruptedHorror));
+				}
+				else
+				{
+					foreach(Tuple<Type, int> Entry in WeightedList)
+					{
+						for(int i = 0; i < Entry.Item2; i++)
+						{
+							SpawnedTypes.Add(Entry.Item1);
+						}
+					}
+				}
+
+				return SpawnedTypes;
+			}
+
+			private void Setup(TimeSpan Duration, uint WaveCount, TimeSpan DelayBetweenWaves, List<Type> SpawnedTypes)
 			{
 				this.Duration = Duration;
 				this.WaveCount = WaveCount;
 				this.DelayBetweenWaves = DelayBetweenWaves;
+				this.SpawnedTypes = SpawnedTypes;
 
 				StartTime = DateTime.Now;
 				EndTime = StartTime.Add(Duration);
@@ -229,7 +273,7 @@ namespace Server.Services.Horde
 						Map Map = Instance.Mobile.Map;
 						for (int i = 0; i < NumberOfSpawnLocationsByPlayer; ++i)
 						{
-							BaseCreature Creature = new CorruptedHorror();
+							BaseCreature Creature = Activator.CreateInstance(SpawnedTypes[Utility.Random(SpawnedTypes.Count)]) as BaseCreature;
 							Creature.MoveToWorld(Map.GetSpawnPosition(Origin, SpawnDistanceFromPlayer), Map);
 
 							SpawnedCreatures.Add(Creature);
@@ -249,30 +293,51 @@ namespace Server.Services.Horde
 				SpawnedCreatures.Clear();
 			}
 
-			public virtual void Serialize(GenericWriter writer)
+			public virtual void Serialize(GenericWriter Writer)
 			{
-				writer.Write(EndTime - DateTime.Now);
-				writer.Write(WaveCount);
-				writer.Write(DelayBetweenWaves);
-				writer.Write(SpawnedCreatures.Count());
+				Writer.Write(EndTime - DateTime.Now);
+				Writer.Write(WaveCount);
+				Writer.Write(DelayBetweenWaves);
+
+				Writer.Write(SpawnedTypes.Count);
+				foreach(Type Type in SpawnedTypes)
+				{
+					Writer.WriteObjectType(Type);
+				}
+
+				Writer.Write(SpawnedCreatures.Count);
 				foreach (BaseCreature Creature in SpawnedCreatures)
 				{
-					writer.Write(Creature.Serial);
+					Writer.Write(Creature.Serial);
 				}
 			}
 
-			public virtual void Deserialize(GenericReader reader)
+			public virtual void Deserialize(GenericReader Reader)
 			{
-				Setup(reader.ReadTimeSpan(), reader.ReadUInt(), reader.ReadTimeSpan());
+				Setup(Reader.ReadTimeSpan(), Reader.ReadUInt(), Reader.ReadTimeSpan(), ReadSpawnedTypes(Reader));
 
-				for(int i = 0; i < reader.ReadInt(); ++i)
+				for(int i = 0; i < Reader.ReadInt(); ++i)
 				{
-					Mobile CreatureMobile = World.FindMobile(reader.ReadInt());
+					Mobile CreatureMobile = World.FindMobile(Reader.ReadInt());
 					if (CreatureMobile != null && CreatureMobile is BaseCreature && CreatureMobile.Alive)
 					{
 						SpawnedCreatures.Add(CreatureMobile as BaseCreature);
 					}
 				}
+			}
+
+			private static List<Type> ReadSpawnedTypes(GenericReader Reader)
+			{
+				int Count = Reader.ReadInt();
+
+				List<Type> SpawnedTypes = new List<Type>(Count);
+
+				for (int i = 0; i < Count; ++i) 
+				{
+					SpawnedTypes.Add(Reader.ReadObjectType());
+				}
+
+				return SpawnedTypes;
 			}
 		}
 	}
