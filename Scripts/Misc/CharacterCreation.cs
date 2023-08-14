@@ -260,7 +260,7 @@ namespace Server.Misc
             Utility.PopColor();
             Utility.PushColor(ConsoleColor.DarkGreen);
             Console.WriteLine(" - Character: {0} (serial={1})", newChar.Name, newChar.Serial);
-            Console.WriteLine(" - Started: {1} in {2}", Location, map);
+            Console.WriteLine(" - Started: {0} in {1}", Location, map);
             Utility.PopColor();
         }
 
