@@ -1,13 +1,13 @@
 # Commandes customs
 ## Admin
 #### .hordeconfigs
-Retourne la liste des presets de horde disponibles (présents dans le fichier de config Hordes.xml)
+Retourne la liste des presets de horde disponibles (présents dans le fichier de config [Hordes.xml](Config/Hordes.xml))
 #### .starthorde [preset]
 Lance une horde s'il n'y en a pas déjà une en cours. Utilise le nom du preset passé s'il est présent, ou "default" s'il n'y en a pas.
 #### .endhorde
 Annule une horde s'il y en a une en cours.
 #### .addsafezone
-Lance un picker de tiles pour définir une nouvelle zone sécure. La première tile sélectionnée sera un coin, la deuxième le coin opposé (la zone sera toujours donc un rectangle). La liste des zones est dans le fichier de configuration SafeZones.xml.
+Lance un picker de tiles pour définir une nouvelle zone sécure. La première tile sélectionnée sera un coin, la deuxième le coin opposé (la zone sera toujours donc un rectangle). La liste des zones est dans le fichier de configuration [SafeZones.xml](Config/SafeZones.xml).
 ## Joueurs
 #### .roll [nombre]/[nom de skill]
 Effectue un roll de d20. 
