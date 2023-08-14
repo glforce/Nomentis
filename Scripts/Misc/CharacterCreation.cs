@@ -249,17 +249,18 @@ namespace Server.Misc
                 newChar.BankBox.DropItem(ticket);
             }
 
-            CityInfo city = args.City;
-            Map map = Siege.SiegeShard && city.Map == Map.Trammel ? Map.Felucca : city.Map;
+			// TODO: Setup a better way to place a new character
+			Map map = Map.Felucca;
+			Point3D Location = new Point3D(1000, 850, 20);
 
-            newChar.MoveToWorld(city.Location, map);
+			newChar.MoveToWorld(Location, map);
 
             Utility.PushColor(ConsoleColor.Green);
             Console.WriteLine("Login: {0}: New character being created (account={1})", state, args.Account.Username);
             Utility.PopColor();
             Utility.PushColor(ConsoleColor.DarkGreen);
             Console.WriteLine(" - Character: {0} (serial={1})", newChar.Name, newChar.Serial);
-            Console.WriteLine(" - Started: {0} {1} in {2}", city.City, city.Location, city.Map);
+            Console.WriteLine(" - Started: {1} in {2}", Location, map);
             Utility.PopColor();
         }
 
