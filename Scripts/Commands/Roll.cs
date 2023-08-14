@@ -13,20 +13,33 @@ namespace Server.Commands
 			CommandSystem.Register("Roll", AccessLevel.Player, OnRoll);
 		}
 
+		private static readonly int MAX_ROLL = 20;
+
 		private static void OnRoll(CommandEventArgs e)
 		{
-			e.Mobile.Say("Rolling rolling...");
+			e.Mobile.Emote("Rolling rolling... {0}", MAX_ROLL);
 
-			int Result = Utility.Random(0, 20) + 1;
+			int Result = Utility.Random(0, MAX_ROLL) + 1;
 
 			if (e.Arguments.Length > 0)
 			{
-				int Required = int.Parse(e.Arguments[0]);
-				e.Mobile.Say("Roll {0}", Result >= Required ? "Success" : "Failed");
+				int CheckValue;
+
+				Skill CheckSkill = e.Mobile.Skills.FirstOrDefault(Skill => Skill.Name.Equals(e.Arguments[0], StringComparison.OrdinalIgnoreCase));
+				if (CheckSkill != null)
+				{
+					CheckValue = (int)((1.0 - CheckSkill.Value / CheckSkill.Cap) * MAX_ROLL);
+				}
+				else
+				{
+					CheckValue = int.Parse(e.Arguments[0]);
+				}
+
+				e.Mobile.Emote("Roll {0}", Result >= CheckValue ? "Success" : "Failed");
 			}
 			else
 			{
-				e.Mobile.Say("Rolled {0}", Result.ToString());
+				e.Mobile.Emote("Rolled {0}", Result.ToString());
 			}
 		}
 	}
