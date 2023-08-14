@@ -110,7 +110,7 @@ namespace Server.Services.Horde
 		}
 
 		[Usage("StartHorde")]
-		public static void StartHorde(CommandEventArgs e)
+		private static void StartHorde(CommandEventArgs e)
 		{
 			PlayerMobile PlayerMobile = e.Mobile as PlayerMobile;
 
@@ -134,7 +134,7 @@ namespace Server.Services.Horde
 		}
 
 		[Usage("EndHorde")]
-		public static void EndHorde(CommandEventArgs e)
+		private static void EndHorde(CommandEventArgs e)
 		{
 			if (CurrentHorde?.IsActive() == true)
 			{
@@ -148,7 +148,7 @@ namespace Server.Services.Horde
 		}
 
 		[Usage("HordeConfigs")]
-		public static void ListHordeConfigs(CommandEventArgs e)
+		private static void ListHordeConfigs(CommandEventArgs e)
 		{
 			string ConfigNames = String.Join(", ", HordeConfigs.Keys);
 
@@ -269,12 +269,13 @@ namespace Server.Services.Horde
 				{
 					if (Instance.Mobile is PlayerMobile)
 					{
-						Point3D Origin = Instance.Mobile.Location;
 						Map Map = Instance.Mobile.Map;
 						for (int i = 0; i < NumberOfSpawnLocationsByPlayer; ++i)
 						{
 							BaseCreature Creature = Activator.CreateInstance(SpawnedTypes[Utility.Random(SpawnedTypes.Count)]) as BaseCreature;
-							Creature.MoveToWorld(Map.GetSpawnPosition(Origin, SpawnDistanceFromPlayer), Map);
+
+							Point2D SpawnLocation = SafeZones.GetLocationOutsideOfSafeZone(Instance.Mobile, 10, 20);
+							Creature.MoveToWorld(new Point3D(SpawnLocation.X, SpawnLocation.Y, Map.GetAverageZ(SpawnLocation.X, SpawnLocation.Y)), Map);
 
 							SpawnedCreatures.Add(Creature);
 						}

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<maps>
+  <map name="Felucca">
+    <zone startx="0" starty="0" endx="1000" endy="1000" />
+  </map>
+  <map name="Trammel">
+    <zone startx="3496" starty="2568" endx="3505" endy="2581" />
+  </map>
+</maps>
