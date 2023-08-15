@@ -167,7 +167,7 @@ namespace Server.Services.Horde
 				return null;
 			}
 
-			return Zones[Map].FirstOrDefault(Zone => Zone.IsInSafeZone(Location));
+			return Zones[Map].Where(Zone => Zone.IsInSafeZone(Location)).Select(Zone => (SafeZone?)Zone).FirstOrDefault();
 		}
 
 		private static void AddSafeZone(CommandEventArgs e)
