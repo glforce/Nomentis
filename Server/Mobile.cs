@@ -752,6 +752,10 @@ namespace Server
 		private DateTime m_LastIntGain;
 		private DateTime m_LastDexGain;
 		private Race m_Race;
+
+
+		private int m_Corruption;
+		private DateTime m_LastCorruptionUpdate;
 		#endregion
 
 		private static readonly TimeSpan WarmodeSpamCatch = TimeSpan.FromSeconds(1.0);
@@ -2349,13 +2353,13 @@ namespace Server
 			switch (type)
 			{
 				case TotalType.Gold:
-				return m_TotalGold;
+					return m_TotalGold;
 
 				case TotalType.Items:
-				return m_TotalItems;
+					return m_TotalItems;
 
 				case TotalType.Weight:
-				return m_TotalWeight;
+					return m_TotalWeight;
 			}
 
 			return 0;
@@ -2371,19 +2375,19 @@ namespace Server
 			switch (type)
 			{
 				case TotalType.Gold:
-				m_TotalGold += delta;
-				Delta(MobileDelta.Gold);
-				break;
+					m_TotalGold += delta;
+					Delta(MobileDelta.Gold);
+					break;
 
 				case TotalType.Items:
-				m_TotalItems += delta;
-				break;
+					m_TotalItems += delta;
+					break;
 
 				case TotalType.Weight:
-				m_TotalWeight += delta;
-				Delta(MobileDelta.Weight);
-				OnWeightChange(m_TotalWeight - delta);
-				break;
+					m_TotalWeight += delta;
+					Delta(MobileDelta.Weight);
+					OnWeightChange(m_TotalWeight - delta);
+					break;
 			}
 		}
 
@@ -2943,33 +2947,33 @@ namespace Server
 					switch (d & Direction.Mask)
 					{
 						case Direction.North:
-						--y;
-						break;
+							--y;
+							break;
 						case Direction.Right:
-						++x;
-						--y;
-						break;
+							++x;
+							--y;
+							break;
 						case Direction.East:
-						++x;
-						break;
+							++x;
+							break;
 						case Direction.Down:
-						++x;
-						++y;
-						break;
+							++x;
+							++y;
+							break;
 						case Direction.South:
-						++y;
-						break;
+							++y;
+							break;
 						case Direction.Left:
-						--x;
-						++y;
-						break;
+							--x;
+							++y;
+							break;
 						case Direction.West:
-						--x;
-						break;
+							--x;
+							break;
 						case Direction.Up:
-						--x;
-						--y;
-						break;
+							--x;
+							--y;
+							break;
 					}
 
 					newLocation.m_X = x;
@@ -4726,22 +4730,22 @@ namespace Server
 			switch (type)
 			{
 				case MessageType.Regular:
-				m_SpeechHue = hue;
-				break;
+					m_SpeechHue = hue;
+					break;
 				case MessageType.Emote:
-				m_EmoteHue = hue;
-				break;
+					m_EmoteHue = hue;
+					break;
 				case MessageType.Whisper:
-				m_WhisperHue = hue;
-				range = 1;
-				break;
+					m_WhisperHue = hue;
+					range = 1;
+					break;
 				case MessageType.Yell:
-				m_YellHue = hue;
-				range = 18;
-				break;
+					m_YellHue = hue;
+					range = 18;
+					break;
 				default:
-				type = MessageType.Regular;
-				break;
+					type = MessageType.Regular;
+					break;
 			}
 
 			var regArgs = new SpeechEventArgs(this, text, type, hue, keywords);
@@ -5397,6 +5401,12 @@ namespace Server
 
 			switch (version)
 			{
+				case 39:
+					RefreshCorruption();
+					m_Corruption = reader.ReadInt();
+					m_LastCorruptionUpdate = reader.ReadDateTime();
+
+					goto case 38;
 				case 38:
 				case 37:
 					{
@@ -5411,8 +5421,8 @@ namespace Server
 					}
 					goto case 35;
 				case 35:
-				GuardImmune = reader.ReadBool();
-				goto case 34;
+					GuardImmune = reader.ReadBool();
+					goto case 34;
 				case 34:
 					{
 						m_StrCap = reader.ReadInt();
@@ -5884,7 +5894,10 @@ namespace Server
 
 		public virtual void Serialize(GenericWriter writer)
 		{
-			writer.Write(38); // version
+			writer.Write(39); // version
+
+			writer.Write(RefreshCorruption());
+			writer.Write(m_LastCorruptionUpdate);
 
 			// 38 - Removed Disarm/Stun Ready
 
@@ -6436,26 +6449,26 @@ namespace Server
 											case 9:
 											case 10:
 											case 11:
-											action = 71;
-											break;
+												action = 71;
+												break;
 											case 12:
 											case 13:
 											case 14:
-											action = 72;
-											break;
+												action = 72;
+												break;
 											case 18:
 											case 19:
-											action = 71;
-											break;
+												action = 71;
+												break;
 											case 20:
-											action = 77;
-											break;
+												action = 77;
+												break;
 											case 31:
-											action = 71;
-											break;
+												action = 71;
+												break;
 											case 34:
-											action = 78;
-											break;
+												action = 78;
+												break;
 										}
 									}
 								}
@@ -6474,23 +6487,23 @@ namespace Server
 										switch (action)
 										{
 											case 9:
-											action = 13;
-											break;
+												action = 13;
+												break;
 											case 10:
-											action = 14;
-											break;
+												action = 14;
+												break;
 											case 11:
-											action = 13;
-											break;
+												action = 13;
+												break;
 											case 12:
 											case 13:
 											case 14:
-											action = 12;
-											break;
+												action = 12;
+												break;
 											case 18:
 											case 19:
-											action = 9;
-											break;
+												action = 9;
+												break;
 										}
 									}
 								}
@@ -12070,6 +12083,59 @@ namespace Server
 		/// </summary>
 		public virtual void OnSectorDeactivate()
 		{ }
+
+		[CommandProperty(AccessLevel.Administrator)]
+		public int Corruption {
+			get
+			{
+				RefreshCorruption();
+
+				return m_Corruption;
+			}
+			set
+			{
+				m_LastCorruptionUpdate = DateTime.Now;
+				m_Corruption = Math.Max(0, Math.Min(99, value));
+			}
+		}
+
+		public int IncreaseCorruption(int Amount)
+		{
+			return ChangeCorruption(Amount);
+		}
+
+		public int DecreaseCorruption(int Amount)
+		{
+			return ChangeCorruption(-Amount);
+		}
+
+		private int ChangeCorruption(int Delta)
+		{
+			Corruption = m_Corruption + Delta;
+
+			return m_Corruption;
+		}
+
+		public bool CorruptionCheck()
+		{
+			return Utility.Random(100) > Corruption;
+		}
+
+		public int RefreshCorruption()
+		{
+			DateTime Now = DateTime.Now;
+
+			TimeSpan Elapsed = Now - m_LastCorruptionUpdate;
+
+			// Decay rate. How long to remove 1 corruption. TODO: Add to config.
+			TimeSpan DecayRate = TimeSpan.FromDays(1);
+
+			int Decay = (int)(Elapsed.TotalMilliseconds / DecayRate.TotalMilliseconds);
+
+			m_LastCorruptionUpdate = Now;
+
+			return ChangeCorruption(Decay);
+		}
 	}
 }
 

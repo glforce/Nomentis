@@ -6,7 +6,6 @@ using Server.Commands;
 using Server.Mobiles;
 using Server.Network;
 using System.Xml;
-using System.Web.UI;
 
 namespace Server.Services.Horde
 {
@@ -309,7 +308,10 @@ namespace Server.Services.Horde
 				Writer.Write(SpawnedCreatures.Count);
 				foreach (BaseCreature Creature in SpawnedCreatures)
 				{
-					Writer.Write(Creature.Serial);
+					if (!Creature.Deleted)
+					{
+						Writer.Write(Creature.Serial);
+					}
 				}
 			}
 

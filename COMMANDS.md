@@ -8,9 +8,17 @@ Lance une horde s'il n'y en a pas déjà une en cours. Utilise le nom du preset 
 Annule une horde s'il y en a une en cours.
 #### .addsafezone
 Lance un picker de tiles pour définir une nouvelle zone sécure. La première tile sélectionnée sera un coin, la deuxième le coin opposé (la zone sera toujours donc un rectangle). La liste des zones est dans le fichier de configuration [SafeZones.xml](Config/SafeZones.xml).
+#### .corruption
+Retourne le niveau de corruption de la cible.
+#### .setcorruption [montant]
+Met le niveau de corruption de la cible. Se retrouve entre 0 et 99.
+#### .increasecorruption [montant]
+Augmente la corruption de la cible.
+#### .decreasecorruption [montant]
+Diminue la corruption de la cible.
 ## Joueurs
 #### .roll [nombre]/[nom de skill]
-Effectue un roll de d20. 
+Effectue un roll de d20.
 
 Sans paramètre, va simplement retourner un nombre de 1 à 20 au hasard, les joueurs peuvent faire ce qu'ils veulent de cette information.
 
