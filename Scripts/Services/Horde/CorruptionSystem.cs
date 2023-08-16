@@ -29,7 +29,7 @@ namespace Server.Services.Horde
 
 		private static void OutputCorruption(Mobile From, Mobile Target)
 		{
-			From.SendMessage("[{0}] Corruption level: {1}", Target.Name, Target.Corruption);
+			From.SendMessage("[{0}] Corruption level: {1}/{2}", Target.Name, Target.Corruption, Mobile.CORRUPTION_MAX);
 		}
 
 		private static void CheckCorruption(CommandEventArgs e)
@@ -41,7 +41,7 @@ namespace Server.Services.Horde
 		{
 			if (e.Arguments.Count() > 0)
 			{
-				TargetCorruptionAction(e.Mobile, Target => Target.IncreaseCorruption(int.Parse(e.Arguments[0])));
+				TargetCorruptionAction(e.Mobile, Target => Target.IncreaseCorruption(float.Parse(e.Arguments[0])));
 			}
 		}
 
@@ -49,7 +49,7 @@ namespace Server.Services.Horde
 		{
 			if (e.Arguments.Count() > 0)
 			{
-				TargetCorruptionAction(e.Mobile, Target => Target.IncreaseCorruption(-int.Parse(e.Arguments[0])));
+				TargetCorruptionAction(e.Mobile, Target => Target.IncreaseCorruption(-float.Parse(e.Arguments[0])));
 			}
 		}
 
@@ -57,7 +57,7 @@ namespace Server.Services.Horde
 		{
 			if (e.Arguments.Count() > 0)
 			{
-				TargetCorruptionAction(e.Mobile, Target => Target.Corruption = int.Parse(e.Arguments[0]));
+				TargetCorruptionAction(e.Mobile, Target => Target.Corruption = float.Parse(e.Arguments[0]));
 			}
 		}
 

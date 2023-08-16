@@ -754,8 +754,8 @@ namespace Server
 		private Race m_Race;
 
 
-		private int m_Corruption;
-		private DateTime m_LastCorruptionUpdate;
+		private float m_Corruption;
+		private DateTime m_LastCorruptionRefresh;
 		#endregion
 
 		private static readonly TimeSpan WarmodeSpamCatch = TimeSpan.FromSeconds(1.0);
@@ -5402,9 +5402,9 @@ namespace Server
 			switch (version)
 			{
 				case 39:
+					m_Corruption = reader.ReadFloat();
+					m_LastCorruptionRefresh = reader.ReadDateTime();
 					RefreshCorruption();
-					m_Corruption = reader.ReadInt();
-					m_LastCorruptionUpdate = reader.ReadDateTime();
 
 					goto case 38;
 				case 38:
@@ -5897,7 +5897,7 @@ namespace Server
 			writer.Write(39); // version
 
 			writer.Write(RefreshCorruption());
-			writer.Write(m_LastCorruptionUpdate);
+			writer.Write(m_LastCorruptionRefresh);
 
 			// 38 - Removed Disarm/Stun Ready
 
@@ -12084,8 +12084,11 @@ namespace Server
 		public virtual void OnSectorDeactivate()
 		{ }
 
+		public static readonly float CORRUPTION_MAX = Config.Get("Corruption.MaxValue", 100.0f);
+		public static readonly TimeSpan CORRUPTION_DECAY_RATE = Config.Get("Corruption.DecayRate", TimeSpan.FromDays(1));
+
 		[CommandProperty(AccessLevel.Administrator)]
-		public int Corruption {
+		public float Corruption {
 			get
 			{
 				RefreshCorruption();
@@ -12094,22 +12097,22 @@ namespace Server
 			}
 			set
 			{
-				m_LastCorruptionUpdate = DateTime.Now;
-				m_Corruption = Math.Max(0, Math.Min(99, value));
+				m_LastCorruptionRefresh = DateTime.Now;
+				m_Corruption = Math.Max(0.0f, Math.Min(CORRUPTION_MAX, value));
 			}
 		}
 
-		public int IncreaseCorruption(int Amount)
+		public float IncreaseCorruption(float Amount)
 		{
 			return ChangeCorruption(Amount);
 		}
 
-		public int DecreaseCorruption(int Amount)
+		public float DecreaseCorruption(float Amount)
 		{
 			return ChangeCorruption(-Amount);
 		}
 
-		private int ChangeCorruption(int Delta)
+		private float ChangeCorruption(float Delta)
 		{
 			Corruption = m_Corruption + Delta;
 
@@ -12118,23 +12121,21 @@ namespace Server
 
 		public bool CorruptionCheck()
 		{
-			return Utility.Random(100) > Corruption;
+			double Result = RandomImpl.NextDouble() * CORRUPTION_MAX;
+			return Result > Corruption;
 		}
 
-		public int RefreshCorruption()
+		public float RefreshCorruption()
 		{
 			DateTime Now = DateTime.Now;
 
-			TimeSpan Elapsed = Now - m_LastCorruptionUpdate;
+			TimeSpan Elapsed = Now - m_LastCorruptionRefresh;
 
-			// Decay rate. How long to remove 1 corruption. TODO: Add to config.
-			TimeSpan DecayRate = TimeSpan.FromDays(1);
+			float Decay = (float)(Elapsed.TotalMilliseconds / CORRUPTION_DECAY_RATE.TotalMilliseconds);
 
-			int Decay = (int)(Elapsed.TotalMilliseconds / DecayRate.TotalMilliseconds);
+			m_LastCorruptionRefresh = Now;
 
-			m_LastCorruptionUpdate = Now;
-
-			return ChangeCorruption(Decay);
+			return ChangeCorruption(-Decay);
 		}
 	}
 }
