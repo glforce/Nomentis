@@ -1,9 +1,10 @@
 ﻿using Server.Items;
+using Server.Mobiles.Corrupted;
 
 namespace Server.Mobiles
 {
 	[CorpseName("le corps d\'une horreur")]
-	public class CorruptedHorror : BaseCreature
+	public class CorruptedHorror : BaseCorrupted
 	{
 		[Constructable]
 		public CorruptedHorror()

@@ -134,7 +134,7 @@ namespace Server.Services.Horde
 
 		public static bool IsInSafeZone(Mobile Mobile)
 		{
-			return IsInSafeZone(Mobile.Map, new Point2D(Mobile.Location.X, Mobile.Location.Y));
+			return IsInSafeZone(Mobile.Map, Mobile.Location);
 		}
 
 		public static Point2D GetLocationOutsideOfSafeZone(Map Map, Point2D Location, int Min, int Max)
@@ -157,7 +157,7 @@ namespace Server.Services.Horde
 
 		public static Point2D GetLocationOutsideOfSafeZone(Mobile Mobile, int Min, int Max)
 		{
-			return GetLocationOutsideOfSafeZone(Mobile.Map, new Point2D(Mobile.Location.X, Mobile.Location.Y), Min, Max);
+			return GetLocationOutsideOfSafeZone(Mobile.Map, Mobile.Location, Min, Max);
 		}
 
 		private static SafeZone? GetSafeZone(Map Map, Point2D Location)

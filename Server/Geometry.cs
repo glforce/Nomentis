@@ -356,6 +356,11 @@ namespace Server
 
 			throw new ArgumentException();
 		}
+
+		public static implicit operator Point2D(Point3D Point) 
+		{ 
+			return new Point2D(Point.X, Point.Y);
+		}
 	}
 
 	[NoSort]

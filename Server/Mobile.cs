@@ -2909,6 +2909,11 @@ namespace Server
 			return Movement.Movement.CheckMovement(this, Map, Location, d, out newZ);
 		}
 
+		public virtual bool CheckMovementTo(Point3D Location, Map Map)
+		{
+			return true;
+		}
+
 		public virtual bool Move(Direction d)
 		{
 			if (m_Deleted)
@@ -2986,6 +2991,11 @@ namespace Server
 
 					if (map != null)
 					{
+						if (!CheckMovementTo(newLocation, map))
+						{
+							return false;
+						}
+
 						var oldSector = map.GetSector(oldX, oldY);
 						var newSector = map.GetSector(x, y);
 
