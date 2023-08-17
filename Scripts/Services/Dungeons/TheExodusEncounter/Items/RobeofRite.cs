@@ -15,6 +15,7 @@ namespace Server.Items
             Weight = 3;
             Hue = 2702;
             StrRequirement = 10;
+            Name = "Robe rituelle";
 
             if (Lifespan > 0)
             {

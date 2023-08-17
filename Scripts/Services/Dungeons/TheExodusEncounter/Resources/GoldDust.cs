@@ -14,6 +14,7 @@ namespace Server.Items
             Hue = 1177;
             Weight = 1.0;
             Amount = amount;
+            Name = "Poudre d'or";
         }
 
         public GoldDust(Serial serial)
