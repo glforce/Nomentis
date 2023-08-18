@@ -68,7 +68,7 @@ namespace Server.Services.Horde
 				return Rects.Any(Rect => Rect.Contains(Location));
 			}
 
-			public Point2D GetLocationOnPerimiter()
+			public Point2D GetLocationOnPerimeter()
 			{
 				return Perimeter[Utility.Random(Perimeter.Count)];
 			}
@@ -146,7 +146,7 @@ namespace Server.Services.Horde
 				return Location;
 			}
 
-			Point2D PerimeterLocation = SafeZone.Value.GetLocationOnPerimiter();
+			Point2D PerimeterLocation = SafeZone.Value.GetLocationOnPerimeter();
 
 			Vector2 Direction = new Vector2(PerimeterLocation.X - Location.X, PerimeterLocation.Y - Location.Y);
 			Direction /= Direction.Length();

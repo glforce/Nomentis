@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hordes>
-    <default duration="60" delay="5">
-        <type name="CorruptedHorror" weight="1" />
-    </default>
-    <long duration="5000" waves="100">
-        <type name="CorruptedHorror" weight="1" />
-        <type name="Unicorn" weight="2" />
-    </long>
-</hordes>
+<hordesconfig>
+    <hordes>
+        <default duration="00:01:00" delay="00:00:05" warningdelay="00:00:05" warningcount="3">
+            <type name="CorruptedHorror" weight="1" />
+        </default>
+        <long duration="00:05:00" waves="100" warningdelay="00:00:30" warningcount="10">
+            <type name="CorruptedHorror" weight="1"/>
+            <type name="Unicorn" weight="2" />
+        </long>
+    </hordes>
+    <warnings>
+        <warning>La nuit s'agite...</warning>
+        <warning>Vous sentez une menace grandissante...</warning>
+        <warning>Les ombres chuchotent...</warning>
+        <warning>Vous sentez une certaine panique...</warning>
+        <warning>Quelque chose vous donne envie de vous cacher...</warning>
+    </warnings>
+</hordesconfig>

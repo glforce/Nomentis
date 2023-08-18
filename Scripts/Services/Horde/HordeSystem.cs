@@ -10,20 +10,24 @@ using Server.Gumps;
 
 namespace Server.Services.Horde
 {
-	public struct HordeConfig
+	public struct HordePreset
 	{
 		public TimeSpan Duration { get; set; }
-		public uint WaveCount { get; set; }
+		public int WaveCount { get; set; }
 		public TimeSpan DelayBetweenWaves { get; set; }
 		public List<Tuple<Type, int>> SpawnedTypes { get; set; }
+		public int MaxAliveCreatures { get; set; }
+		public TimeSpan WarningDelay { get; set; }
+		public int WarningCount { get; set; }
 	}
 
 	public class HordeSystem
 	{
 		private static readonly string SaveFilePath = Path.Combine("Saves", "Misc", "HordeSystem.bin");
-		private static readonly string ConfigsFilePath = Path.Combine("Config", "Hordes.xml");
+		private static readonly string ConfigFilePath = Path.Combine("Config", "Hordes.xml");
 
-		private static Dictionary<string, HordeConfig> HordeConfigs = new Dictionary<string, HordeConfig>();
+		private static Dictionary<string, HordePreset> HordePresets = new Dictionary<string, HordePreset>();
+		private static List<string> HordeWarnings = new List<string>();
 
 		private static Horde CurrentHorde = null;
 
@@ -32,33 +36,42 @@ namespace Server.Services.Horde
 			EventSink.WorldSave += OnSave;
 			EventSink.WorldLoad += OnLoad;
 
-			LoadHordeConfigs();
+			LoadHordeConfig();
 
 			CommandSystem.Register("StartHorde", AccessLevel.Administrator, StartHorde);
 			CommandSystem.Register("EndHorde", AccessLevel.Administrator, EndHorde);
 
-			CommandSystem.Register("HordeConfigs", AccessLevel.Administrator, ListHordeConfigs);
+			CommandSystem.Register("HordePresets", AccessLevel.Administrator, ListHordePresets);
 		}
 
-		private static void LoadHordeConfigs()
+		private static void LoadHordeConfig()
 		{
 			XmlDocument XmlDocument = new XmlDocument();
-			XmlDocument.Load(ConfigsFilePath);
+			XmlDocument.Load(ConfigFilePath);
+
 			foreach (XmlNode Node in XmlDocument.GetElementsByTagName("hordes")[0].ChildNodes)
 			{
-				HordeConfig Config = new HordeConfig()
+				HordePreset Config = new HordePreset()
 				{
-					Duration = TimeSpan.FromSeconds(double.Parse(Node.Attributes["duration"]?.Value ?? "1")),
-					WaveCount = uint.Parse(Node.Attributes["waves"]?.Value ?? "0"),
-					DelayBetweenWaves = TimeSpan.FromSeconds(double.Parse(Node.Attributes["delay"]?.Value ?? "0")),
-					SpawnedTypes = LoadHordeConfigSpawnedTypes(Node)
+					Duration = TimeSpan.Parse(Node.Attributes["duration"]?.Value ?? "00:01:00"),
+					WaveCount = int.Parse(Node.Attributes["waves"]?.Value ?? "0"),
+					DelayBetweenWaves = TimeSpan.Parse(Node.Attributes["delay"]?.Value ?? "00:00:00"),
+					SpawnedTypes = LoadHordePresetSpawnedTypes(Node),
+					MaxAliveCreatures = int.Parse(Node.Attributes["maxalive"]?.Value ?? "0"),
+					WarningDelay = TimeSpan.Parse(Node.Attributes["warningdelay"]?.Value ?? "00:00:30"),
+					WarningCount = int.Parse(Node.Attributes["warningcount"]?.Value ?? "0")
 				};
 
-				HordeConfigs.Add(Node.Name, Config);
+				HordePresets.Add(Node.Name, Config);
+			}
+
+			foreach (XmlNode Node in XmlDocument.GetElementsByTagName("warnings")[0].ChildNodes)
+			{
+				HordeWarnings.Add(Node.InnerText);
 			}
 		}
 
-		private static List<Tuple<Type, int>> LoadHordeConfigSpawnedTypes(XmlNode HordeNode)
+		private static List<Tuple<Type, int>> LoadHordePresetSpawnedTypes(XmlNode HordeNode)
 		{
 			List<Tuple<Type, int>> SpawnedTypes = new List<Tuple<Type, int>>();
 
@@ -128,19 +141,19 @@ namespace Server.Services.Horde
 				return;
 			}
 
-			string ConfigName = e.Arguments.ElementAtOrDefault(0) ?? "default";
-			HordeConfig Config;
-			if (HordeConfigs.TryGetValue(ConfigName, out Config))
+			string PresetName = e.Arguments.ElementAtOrDefault(0) ?? "default";
+			HordePreset Preset;
+			if (HordePresets.TryGetValue(PresetName, out Preset))
 			{
-				AskForConfirmation(PlayerMobile, string.Format("Vous allez lancer la horde {0}. Êtes-vous sûr?", ConfigName), () =>
+				AskForConfirmation(PlayerMobile, string.Format("Vous allez lancer la horde {0}. Êtes-vous sûr?", PresetName), () =>
 				{
-					CurrentHorde = new Horde(Config);
+					CurrentHorde = new Horde(Preset);
 					CurrentHorde.Start();
 				});
 			}
 			else
 			{
-				PlayerMobile.SendMessage("Could not find horde config named {0}", ConfigName);
+				PlayerMobile.SendMessage("Could not find horde preset named {0}", PresetName);
 			}
 		}
 
@@ -161,12 +174,12 @@ namespace Server.Services.Horde
 			}
 		}
 
-		[Usage("HordeConfigs")]
-		private static void ListHordeConfigs(CommandEventArgs e)
+		[Usage("HordePresets")]
+		private static void ListHordePresets(CommandEventArgs e)
 		{
-			string ConfigNames = String.Join(", ", HordeConfigs.Keys);
+			string PresetNames = String.Join(", ", HordePresets.Keys);
 
-			(e.Mobile as PlayerMobile).SendMessage("Available horde configs: {0}", ConfigNames);
+			(e.Mobile as PlayerMobile).SendMessage("Available horde presets: {0}", PresetNames);
 		}
 
 		private static bool IsCurrentHordeActive()
@@ -176,29 +189,36 @@ namespace Server.Services.Horde
 
 		public class Horde
 		{
-			private static readonly int NumberOfSpawnLocationsByPlayer = Config.Get("Horde.NumberOfSpawnLocationsByPlayer", 10);
-			private static readonly int SpawnDistanceFromPlayer = Config.Get("Horde.SpawnDistanceFromPlayer", 10);
+			private static readonly int SpawnRangeMin = Config.Get("Horde.SpawnRangeMin", 0);
+			private static readonly int SpawnRangeMax = Config.Get("Horde.SpawnRangeMax", 10);
 
-			private uint WaveCount = 0;
+			private int WaveCount = 0;
 			private TimeSpan DelayBetweenWaves;
 			private List<Type> SpawnedTypes;
+			private int MaxAliveCreatures = 0;
+			private TimeSpan WarningDelay;
+			private int WarningCount = 0;
+			private int MaxWarning = 0;
 
 			private DateTime StartTime;
 			private DateTime EndTime;
 
-			private Timer WaveTimer = null;
+			private Timer Timer = null;
 
 			private List<BaseCreature> SpawnedCreatures = new List<BaseCreature>();
 
 			public Horde() { }
 
-			public Horde(HordeConfig Config)
+			public Horde(HordePreset Preset)
 			{
 				Setup(
-					Config.Duration,
-					Config.WaveCount > 0 ? Config.WaveCount : int.MaxValue,
-					Config.DelayBetweenWaves != TimeSpan.Zero ? Config.DelayBetweenWaves : TimeSpan.FromTicks(Config.Duration.Ticks / (WaveCount + 1)),
-					GetSpawnedTypesFromWeightedList(Config.SpawnedTypes)
+					Preset.Duration,
+					Preset.WaveCount > 0 ? Preset.WaveCount : int.MaxValue,
+					Preset.DelayBetweenWaves != TimeSpan.Zero ? Preset.DelayBetweenWaves : TimeSpan.FromTicks(Preset.Duration.Ticks / (WaveCount + 1)),
+					GetSpawnedTypesFromWeightedList(Preset.SpawnedTypes),
+					Preset.MaxAliveCreatures > 0 ? Preset.MaxAliveCreatures : int.MaxValue,
+					Preset.WarningDelay,
+					Preset.WarningCount
 				);
 			}
 
@@ -224,11 +244,23 @@ namespace Server.Services.Horde
 				return SpawnedTypes;
 			}
 
-			private void Setup(TimeSpan Duration, uint WaveCount, TimeSpan DelayBetweenWaves, List<Type> SpawnedTypes)
+			private void Setup(
+				TimeSpan Duration, 
+				int WaveCount, 
+				TimeSpan DelayBetweenWaves, 
+				List<Type> SpawnedTypes, 
+				int MaxAliveCreatures,
+				TimeSpan WarningDelay,
+				int WarningCount)
 			{
 				this.WaveCount = WaveCount;
 				this.DelayBetweenWaves = DelayBetweenWaves;
 				this.SpawnedTypes = SpawnedTypes;
+				this.MaxAliveCreatures = MaxAliveCreatures;
+				this.WarningDelay = WarningDelay;
+				this.WarningCount = WarningCount;
+
+				MaxWarning = WarningCount;
 
 				StartTime = DateTime.Now;
 				EndTime = StartTime.Add(Duration);
@@ -236,19 +268,17 @@ namespace Server.Services.Horde
 
 			public void Start()
 			{
-				World.Broadcast(0xff, false, AccessLevel.Player, "The horde is shuffling...");
-
-				SpawnWave();
+				Trigger();
 			}
 
 			public void Resume()
 			{
-				SpawnWave();
+				Trigger();
 			}
 
 			public void End()
 			{
-				WaveTimer?.Stop();
+				Timer?.Stop();
 
 				DestroySpawnedCreatures();
 
@@ -259,15 +289,31 @@ namespace Server.Services.Horde
 				return WaveCount > 0 && DateTime.Now < EndTime;
 			}
 
-			private void SpawnWave()
+			private void Trigger()
 			{
 				if (IsActive())
 				{
-					WaveCount--;
+					TimeSpan DelayForNextWave;
+					if (WarningCount > 0)
+					{
+						int WarningIndex = Math.Min(MaxWarning - WarningCount, HordeWarnings.Count - 1);
 
-					SpawnCreatures();
+						WarningCount--;
 
-					WaveTimer = Timer.DelayCall(DelayBetweenWaves, SpawnWave);
+						World.Broadcast(0xff, false, AccessLevel.Player, HordeWarnings[WarningIndex]);
+
+						DelayForNextWave = WarningDelay;
+					}
+					else
+					{
+						WaveCount--;
+
+						SpawnCreatures();
+
+						DelayForNextWave = DelayBetweenWaves;
+					}
+
+					Timer = Timer.DelayCall(DelayForNextWave, Trigger);
 				}
 				else
 				{
@@ -277,19 +323,32 @@ namespace Server.Services.Horde
 
 			private void SpawnCreatures()
 			{
+				if (SpawnedCreatures.Count(Creature => Creature.Alive) >= MaxAliveCreatures)
+				{
+					return;
+				}
+
 				foreach (NetState Instance in NetState.Instances)
 				{
 					if (Instance.Mobile is PlayerMobile)
 					{
 						Map Map = Instance.Mobile.Map;
-						for (int i = 0; i < NumberOfSpawnLocationsByPlayer; ++i)
-						{
-							BaseCreature Creature = Activator.CreateInstance(SpawnedTypes[Utility.Random(SpawnedTypes.Count)]) as BaseCreature;
 
-							Point2D SpawnLocation = SafeZones.GetLocationOutsideOfSafeZone(Instance.Mobile, 10, 20);
-							Creature.MoveToWorld(new Point3D(SpawnLocation.X, SpawnLocation.Y, Map.GetAverageZ(SpawnLocation.X, SpawnLocation.Y)), Map);
+						BaseCreature Creature = Activator.CreateInstance(SpawnedTypes[Utility.Random(SpawnedTypes.Count)]) as BaseCreature;
+
+						Point2D SpawnLocation = SafeZones.GetLocationOutsideOfSafeZone(Instance.Mobile, SpawnRangeMin, SpawnRangeMax);
+						Point3D ValidSpawnLocation = Map.GetSpawnPosition(new Point3D(SpawnLocation.X, SpawnLocation.Y, Map.GetAverageZ(SpawnLocation.X, SpawnLocation.Y)), SpawnRangeMin);
+						
+						if (!SafeZones.IsInSafeZone(Map, ValidSpawnLocation))
+						{
+							Creature.MoveToWorld(ValidSpawnLocation, Map);
 
 							SpawnedCreatures.Add(Creature);
+						}
+						else
+						{
+							// Fail-safe in case the valid spawn position was in another safe zone
+							Creature.Delete();
 						}
 					}
 				}
@@ -311,12 +370,15 @@ namespace Server.Services.Horde
 				Writer.Write(EndTime - DateTime.Now);
 				Writer.Write(WaveCount);
 				Writer.Write(DelayBetweenWaves);
-
 				Writer.Write(SpawnedTypes.Count);
 				foreach(Type Type in SpawnedTypes)
 				{
 					Writer.WriteObjectType(Type);
 				}
+
+				Writer.Write(MaxAliveCreatures);
+				Writer.Write(WarningDelay);
+				Writer.Write(WarningCount);
 
 				Writer.Write(SpawnedCreatures.Count);
 				foreach (BaseCreature Creature in SpawnedCreatures)
@@ -330,7 +392,15 @@ namespace Server.Services.Horde
 
 			public virtual void Deserialize(GenericReader Reader)
 			{
-				Setup(Reader.ReadTimeSpan(), Reader.ReadUInt(), Reader.ReadTimeSpan(), ReadSpawnedTypes(Reader));
+				Setup(
+					Reader.ReadTimeSpan(), 
+					Reader.ReadInt(), 
+					Reader.ReadTimeSpan(),
+					ReadSpawnedTypes(Reader), 
+					Reader.ReadInt(),
+					Reader.ReadTimeSpan(),
+					Reader.ReadInt()
+					);
 
 				for(int i = 0; i < Reader.ReadInt(); ++i)
 				{

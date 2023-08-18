@@ -1,6 +1,6 @@
 # Commandes customs
 ## Admin
-#### .hordeconfigs
+#### .hordepresets
 Retourne la liste des presets de horde disponibles (présents dans le fichier de config [Hordes.xml](Config/Hordes.xml))
 #### .starthorde [preset]
 Lance une horde s'il n'y en a pas déjà une en cours. Utilise le nom du preset passé s'il est présent, ou "default" s'il n'y en a pas.
