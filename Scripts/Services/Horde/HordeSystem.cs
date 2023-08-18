@@ -6,6 +6,7 @@ using Server.Commands;
 using Server.Mobiles;
 using Server.Network;
 using System.Xml;
+using Server.Gumps;
 
 namespace Server.Services.Horde
 {
@@ -108,6 +109,14 @@ namespace Server.Services.Horde
 			   });
 		}
 
+		private static void AskForConfirmation(PlayerMobile Mobile, string Message, Action OnConfirm)
+		{
+			Mobile.SendGump(new ConfirmCallbackGump(Mobile, "Horde", Message, null, null, (_, __) =>
+			{
+				OnConfirm();
+			}));
+		}
+
 		[Usage("StartHorde")]
 		private static void StartHorde(CommandEventArgs e)
 		{
@@ -123,8 +132,11 @@ namespace Server.Services.Horde
 			HordeConfig Config;
 			if (HordeConfigs.TryGetValue(ConfigName, out Config))
 			{
-				CurrentHorde = new Horde(Config);
-				CurrentHorde.Start();
+				AskForConfirmation(PlayerMobile, string.Format("Vous allez lancer la horde {0}. Êtes-vous sûr?", ConfigName), () =>
+				{
+					CurrentHorde = new Horde(Config);
+					CurrentHorde.Start();
+				});
 			}
 			else
 			{
@@ -137,8 +149,11 @@ namespace Server.Services.Horde
 		{
 			if (CurrentHorde?.IsActive() == true)
 			{
-				CurrentHorde?.End();
-				CurrentHorde = null;
+				AskForConfirmation(e.Mobile as PlayerMobile, "Vous allez interrompre la horde en cours. Êtes-vous sûr?", () =>
+				{
+					CurrentHorde?.End();
+					CurrentHorde = null;
+				});
 			}
 			else
 			{
@@ -164,7 +179,6 @@ namespace Server.Services.Horde
 			private static readonly int NumberOfSpawnLocationsByPlayer = Config.Get("Horde.NumberOfSpawnLocationsByPlayer", 10);
 			private static readonly int SpawnDistanceFromPlayer = Config.Get("Horde.SpawnDistanceFromPlayer", 10);
 
-			private TimeSpan Duration;
 			private uint WaveCount = 0;
 			private TimeSpan DelayBetweenWaves;
 			private List<Type> SpawnedTypes;
@@ -212,7 +226,6 @@ namespace Server.Services.Horde
 
 			private void Setup(TimeSpan Duration, uint WaveCount, TimeSpan DelayBetweenWaves, List<Type> SpawnedTypes)
 			{
-				this.Duration = Duration;
 				this.WaveCount = WaveCount;
 				this.DelayBetweenWaves = DelayBetweenWaves;
 				this.SpawnedTypes = SpawnedTypes;
