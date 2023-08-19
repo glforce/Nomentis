@@ -17,17 +17,17 @@ namespace Server.Gumps
     public class ViewHueGump : BaseProjectMGump
 	{
 
-        private ArrayList Rewards;
+   //     private ArrayList Rewards;
 
         public int y_inc = 20;
-        private int x_creditoffset = 75;
+     //   private int x_creditoffset = 75;
         private int x_pointsoffset = 280;
         private int maxItemsPerPage = 15;
         private readonly int viewpage;
 
         public const int TOTAL_HUES = 3000;
 
-        Mobile caller;
+    //    Mobile caller;
         public ViewHueGump( Mobile from, int page ) : base("Hues", 130, 400, true)
 		{
             viewpage = page;

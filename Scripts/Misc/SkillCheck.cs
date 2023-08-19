@@ -242,7 +242,7 @@ namespace Server.Misc
         {
             double gc = (double)(from.Skills.Cap - from.Skills.Total) / from.Skills.Cap;
 
-            gc += (skill.Cap - skill.Base) / skill.Cap;
+            gc += (100 - skill.Base) / 100;
             gc /= 2;
 
             gc += (1.0 - chance) * (success ? 0.5 : 0.0);

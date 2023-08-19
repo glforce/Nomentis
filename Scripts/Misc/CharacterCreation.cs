@@ -172,6 +172,7 @@ namespace Server.Misc
             newChar.Hue = args.Hue | 0x8000;
 
             newChar.Hunger = 20;
+            newChar.Thirst = 20;
 
             bool young = false;
 
