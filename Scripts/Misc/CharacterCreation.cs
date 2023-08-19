@@ -134,7 +134,7 @@ namespace Server.Misc
             for (int i = 0; i < a.Length; ++i)
             {
                 if (a[i] == null)
-                    return (a[i] = new PlayerMobile());
+                    return (a[i] = new CustomPlayerMobile());
             }
 
             return null;
@@ -175,10 +175,8 @@ namespace Server.Misc
 
             bool young = false;
 
-            if (newChar is PlayerMobile)
+            if (newChar is CustomPlayerMobile pm)
             {
-                PlayerMobile pm = (PlayerMobile)newChar;
-
                 pm.AutoRenewInsurance = true;
 
                 double skillcap = Config.Get("PlayerCaps.SkillCap", 1000.0d) / 10;
