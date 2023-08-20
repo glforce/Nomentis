@@ -222,10 +222,10 @@ namespace Server.Spells
 
             int damage = Utility.Dice(dice, sides, bonus) * 100;
 
-            int inscribeSkill = GetInscribeFixed(m_Caster);
-            int scribeBonus = inscribeSkill >= 1000 ? 10 : inscribeSkill / 200;
+         /*  int inscribeSkill = GetInscribeFixed(m_Caster);
+            int scribeBonus = inscribeSkill >= 1000 ? 10 : inscribeSkill / 200;*/
 
-            int damageBonus = scribeBonus +
+            int damageBonus = /* scribeBonus +*/
                               (Caster.Int / 10) +
                               SpellHelper.GetSpellDamageBonus(m_Caster, target, CastSkill, playerVsPlayer);
 
@@ -275,7 +275,7 @@ namespace Server.Spells
                 if (focus > 12)
                     focus = 12;
 
-                focus += m_Caster.Skills[SkillName.Inscribe].Value >= 50 ? GetInscribeFixed(m_Caster) / 200 : 0;
+                focus += m_Caster.Skills[SkillName.EvalInt].Value >= 50 ? GetInscribeFixed(m_Caster) / 200 : 0;
 
                 if (focus > 0 && focus > Utility.Random(100))
                 {

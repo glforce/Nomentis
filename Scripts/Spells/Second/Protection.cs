@@ -40,8 +40,8 @@ namespace Server.Spells.Second
 
                 mods = new object[2]
                 {
-                    new ResistanceMod(ResistanceType.Physical, -15 + Math.Min((int)(caster.Skills[SkillName.Inscribe].Value / 20), 15)),
-                    new DefaultSkillMod(SkillName.MagicResist, true, -35 + Math.Min((int)(caster.Skills[SkillName.Inscribe].Value / 20), 35))
+                    new ResistanceMod(ResistanceType.Physical, -15 + Math.Min((int)(caster.Skills[SkillName.EvalInt].Value / 20), 15)),
+                    new DefaultSkillMod(SkillName.MagicResist, true, -35 + Math.Min((int)(caster.Skills[SkillName.EvalInt].Value / 20), 35))
                 };
 
                 m_Table[target] = mods;
@@ -50,8 +50,8 @@ namespace Server.Spells.Second
                 target.AddResistanceMod((ResistanceMod)mods[0]);
                 target.AddSkillMod((SkillMod)mods[1]);
 
-                int physloss = -15 + (int)(caster.Skills[SkillName.Inscribe].Value / 20);
-                int resistloss = -35 + (int)(caster.Skills[SkillName.Inscribe].Value / 20);
+                int physloss = -15 + (int)(caster.Skills[SkillName.EvalInt].Value / 20);
+                int resistloss = -35 + (int)(caster.Skills[SkillName.EvalInt].Value / 20);
                 string args = string.Format("{0}\t{1}", physloss, resistloss);
                 BuffInfo.AddBuff(target, new BuffInfo(archprotection ? BuffIcon.ArchProtection : BuffIcon.Protection, archprotection ? 1075816 : 1075814, 1075815, args.ToString()));
             }

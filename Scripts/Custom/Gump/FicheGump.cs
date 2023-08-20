@@ -43,8 +43,11 @@ namespace Server.Gumps
 			AddHtmlTexte(x + 10, y + 60, 100, "Race:");
 			AddHtmlTexte(x + 125, y + 60, 150, from.Race.Name);
 
-			AddHtmlTexte(x + 10, y + 80, 100, "Niveau:");
-			AddHtmlTexte(x + 125, y + 80, 150, from.Niveau.ToString());
+			AddHtmlTexte(x + 10, y + 80, 100, "Metier:");
+			AddHtmlTexte(x + 125, y + 80, 150, from.Metier.ToString());
+
+			AddHtmlTexte(x + 10, y + 100, 100, "Niveau:");
+			AddHtmlTexte(x + 125, y + 100, 150, from.Niveau.ToString());
 
 	/*		AddHtmlTexte(x + 10, y + 100, 100, "Apparence:");
 			AddHtmlTexte(x + 125, y + 100, 150, from.Apparence());

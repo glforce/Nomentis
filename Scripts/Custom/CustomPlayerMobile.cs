@@ -28,6 +28,7 @@ namespace Server.Mobiles
 		private DateTime m_LastFERP;
         private DateTime m_lastLoginTime;
         private int m_Niveau;
+        private Metier m_Metier;
 
         [CommandProperty(AccessLevel.GameMaster)]
 		public TimeSpan NextFETime
@@ -98,6 +99,19 @@ namespace Server.Mobiles
                 }              
             } 
         }
+
+        [CommandProperty(AccessLevel.GameMaster)]
+		public Metier Metier
+		{
+			get => m_Metier;
+			set
+			{
+		    	m_Metier = value;
+                AdjustLvl();
+				
+			}
+
+		}
        
         public CustomPlayerMobile()
 		{
@@ -146,12 +160,24 @@ namespace Server.Mobiles
             double skillcap =  XPLevel.GetLevel(Niveau).MaxSkill;
 
             for (int i = 0; i < Skills.Length; ++i)
-            {	  
-              Skills[i].Cap = skillcap;
+            {	 
+              double skillSpecCap = skillcap;
 
-              if (Skills[i].Value > skillcap)
+              if (Metier.IsMetierSkill(Skills[i].SkillName))
               {
-                Skills[i].Base = skillcap;
+                double metierSkill = Metier.GetSkillValue(Skills[i].SkillName);
+
+                if (skillSpecCap > metierSkill)
+                {
+                    skillSpecCap = metierSkill;
+                }
+              }
+
+              Skills[i].Cap = skillSpecCap;
+
+              if (Skills[i].Value > skillSpecCap)
+              {
+                Skills[i].Base = skillSpecCap;
               }
             }
         }
@@ -169,6 +195,7 @@ namespace Server.Mobiles
 			{
         			case 0:
                     {
+                        m_Metier = Metier.GetMetier(reader.ReadInt());
                         m_Niveau = reader.ReadInt();
                         m_lastLoginTime = reader.ReadDateTime();    
                         m_TotalRPFE = reader.ReadInt();
@@ -185,7 +212,7 @@ namespace Server.Mobiles
             base.Serialize(writer);
 
             writer.Write(0); // version
-
+            writer.Write(m_Metier.MetierID);
             writer.Write(m_Niveau);
             writer.Write(m_lastLoginTime);
             writer.Write(m_TotalRPFE); 

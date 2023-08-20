@@ -192,6 +192,8 @@ namespace Server.Misc
 
                 if (pm.IsPlayer() && pm.Account.Young && !Siege.SiegeShard)
                     young = pm.Young = true;
+
+                pm.Metier = Metier.GetMetier(0);
             }
 
             SetName(newChar, args.Name);

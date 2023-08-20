@@ -41,7 +41,7 @@ namespace Server.Spells.First
             * 15 + (Inscription/20) Physcial bonus
             * -5 Elemental
             * The reactive armor spell has an indefinite duration, becoming active when cast, and deactivated when re-cast. 
-            * Reactive Armor, Protection, and Magic Reflection will stay on—even after logging out, even after dying—until you “turn them off” by casting them again. 
+            * Reactive Armor, Protection, and Magic Reflection will stay onï¿½even after logging out, even after dyingï¿½until you ï¿½turn them offï¿½ by casting them again. 
             * (+20 physical -5 elemental at 100 Inscription)
             */
             if (CheckSequence())
@@ -57,7 +57,7 @@ namespace Server.Spells.First
 
                     mods = new ResistanceMod[5]
                     {
-                        new ResistanceMod(ResistanceType.Physical, 15 + (int)(targ.Skills[SkillName.Inscribe].Value / 20)),
+                        new ResistanceMod(ResistanceType.Physical, 15 + (int)(targ.Skills[SkillName.EvalInt].Value / 20)),
                         new ResistanceMod(ResistanceType.Fire, -5),
                         new ResistanceMod(ResistanceType.Cold, -5),
                         new ResistanceMod(ResistanceType.Poison, -5),
@@ -69,7 +69,7 @@ namespace Server.Spells.First
                     for (int i = 0; i < mods.Length; ++i)
                         targ.AddResistanceMod(mods[i]);
 
-                    int physresist = 15 + (int)(targ.Skills[SkillName.Inscribe].Value / 20);
+                    int physresist = 15 + (int)(targ.Skills[SkillName.EvalInt].Value / 20);
                     string args = string.Format("{0}\t{1}\t{2}\t{3}\t{4}", physresist, 5, 5, 5, 5);
 
                     BuffInfo.AddBuff(Caster, new BuffInfo(BuffIcon.ReactiveArmor, 1075812, 1075813, args.ToString()));

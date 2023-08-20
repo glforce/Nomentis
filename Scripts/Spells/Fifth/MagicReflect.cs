@@ -47,7 +47,7 @@ namespace Server.Spells.Fifth
 
                 if (context == null)
                 {
-                    int physiMod = 20 - (int)(targ.Skills[SkillName.Inscribe].Value / 20);
+                    int physiMod = 20 - (int)(targ.Skills[SkillName.EvalInt].Value / 20);
                     int otherMod = 10;
 
                     var mods = new ResistanceMod[5]
@@ -249,7 +249,7 @@ namespace Server.Spells.Fifth
 
             private int CalculateReflectPool()
             {
-                var scribe = Caster.Skills[SkillName.Inscribe].Value;
+                var scribe = Caster.Skills[SkillName.EvalInt].Value;
 
                 return Math.Min(100, (int)(((Caster.Skills[SkillName.Magery].Value / 20) + (scribe >= 50.0 ? scribe / 20 : 0)) * (1 + Math.Floor(Caster.Skills[SkillName.MagicResist].Value * .075))));
             }
