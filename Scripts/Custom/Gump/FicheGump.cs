@@ -37,17 +37,39 @@ namespace Server.Gumps
 
 			AddSection(x - 10, y, 250, 180, "Informations");
 
-			AddHtmlTexte(x +10, y + 40, 100, "Nom:");
-			AddHtmlTexte(x + 125, y + 40, 150, from.Name);
+			int yLine = 2;
 
-			AddHtmlTexte(x + 10, y + 60, 100, "Race:");
-			AddHtmlTexte(x + 125, y + 60, 150, from.Race.Name);
+			AddHtmlTexte(x +10, y + yLine * 20, 100, "Nom:");
+			AddHtmlTexte(x + 125, y + yLine * 20, 150, from.Name);
+			yLine++;
 
-			AddHtmlTexte(x + 10, y + 80, 100, "Metier:");
-			AddHtmlTexte(x + 125, y + 80, 150, from.Metier.ToString());
+			AddHtmlTexte(x + 10, y + yLine * 20, 100, "Race:");
+			AddHtmlTexte(x + 125, y + yLine * 20, 150, from.Race.Name);
+			yLine++;
 
-			AddHtmlTexte(x + 10, y + 100, 100, "Niveau:");
-			AddHtmlTexte(x + 125, y + 100, 150, from.Niveau.ToString());
+			AddHtmlTexte(x + 10, y + yLine * 20, 100, "Classe:");
+
+			if (m_GM == null)
+			{
+			   AddButtonHtlml(X + 150 - 18, y + yLine * 20,1,from.Classe.ToString(),"#FFFFFF");
+			}
+			else
+			{
+				AddHtmlTexte(x + 125, y + yLine * 20, 150, from.Classe.ToString());
+			}
+			yLine++;
+
+			AddHtmlTexte(x + 10, y + yLine * 20, 100, "Metier:");
+			AddHtmlTexte(x + 125,y + yLine * 20, 150, from.Metier.ToString());
+			yLine++;
+
+			AddHtmlTexte(x + 10, y + yLine * 20, 100, "Niveau:");
+			AddHtmlTexte(x + 125, y + yLine * 20, 150, from.Niveau.ToString());
+			yLine++;
+
+			AddHtmlTexte(x + 10, y + yLine * 20, 100, "Armure:");
+			AddHtmlTexte(x + 125, y + yLine * 20, 150, from.Armure.ToString());
+			yLine++;
 
 	/*		AddHtmlTexte(x + 10, y + 100, 100, "Apparence:");
 			AddHtmlTexte(x + 125, y + 100, 150, from.Apparence());
@@ -198,7 +220,16 @@ namespace Server.Gumps
 
 		public override void OnResponse(NetState sender, RelayInfo info)
         {
+			 if (info.ButtonID == 1 && m_GM == null)
+			{
+				
+				
+ 				List<int> list = new List<int>();
+                list.Add(m_From.Classe.ClasseID);
+             
+                m_From.SendGump(new ClasseGump(m_From, m_From.Classe.ClasseID, list, 0));
 
+			}
 
 
 	/*		if (info.ButtonID >= 100 && info.ButtonID < 200)

@@ -29,6 +29,7 @@ namespace Server.Mobiles
         private DateTime m_lastLoginTime;
         private int m_Niveau;
         private Metier m_Metier;
+        private Classe m_Classe;
 
         [CommandProperty(AccessLevel.GameMaster)]
 		public TimeSpan NextFETime
@@ -112,7 +113,27 @@ namespace Server.Mobiles
 			}
 
 		}
+
+        [CommandProperty(AccessLevel.GameMaster)]
+		public Classe Classe
+		{
+			get => m_Classe;
+			set
+			{
+		    	m_Classe = value;
+                AdjustLvl();
+				
+			}
+
+		}
+
+    	[CommandProperty(AccessLevel.GameMaster)]
+		public int Armure { get => m_Classe.Armor; }
+
        
+
+
+
         public CustomPlayerMobile()
 		{
 			
@@ -129,6 +150,56 @@ namespace Server.Mobiles
 			if (this.AccessLevel > AccessLevel.Player)
 			{
 				return true;
+			}
+
+            if (item is BaseArmor)
+			{
+				int req = 10;
+
+				BaseArmor armor = (BaseArmor)item;
+
+				switch (armor.MaterialType)
+				{
+					case ArmorMaterialType.Cloth:
+						req = 0;
+						break;
+					case ArmorMaterialType.Leather:
+						req = 1;
+						break;
+					case ArmorMaterialType.Studded:
+						req = 2;
+						break;
+					case ArmorMaterialType.Bone:
+						req = 3;
+						break;
+					case ArmorMaterialType.Ringmail:
+						req = 4;
+						break;
+					case ArmorMaterialType.Chainmail:
+						req = 5;
+						break;
+					case ArmorMaterialType.Plate:
+						req = 6;
+						break;
+					case ArmorMaterialType.Dragon:
+						req = 6;
+						break;
+					case ArmorMaterialType.Wood:
+						req = 4;
+						break;
+					case ArmorMaterialType.Stone:
+						req = 4;
+						break;
+					default:
+						req = 10;
+						break;
+				}
+
+				if (Armure < req)
+				{
+					SendMessage("Armure requise : " + req);
+					return false;
+				}
 			}
 
             return base.OnEquip(item);
@@ -152,6 +223,11 @@ namespace Server.Mobiles
             {
                  SendMessage("Félicitation ! Vous venez de gagner un niveau !");
                  Niveau = NewLvl - 1;
+
+                 if (CanEvolveClass())
+                 {
+                    SendMessage("Vous pouvez maintenant choisir une nouvelle classe !");
+                 }
             }         
         }
 
@@ -172,6 +248,15 @@ namespace Server.Mobiles
                     skillSpecCap = metierSkill;
                 }
               }
+              else
+              {
+                 double ClasseSkill = Classe.GetSkillValue(Skills[i].SkillName);
+
+                if (skillSpecCap > ClasseSkill)
+                {
+                    skillSpecCap = ClasseSkill;
+                }
+              }
 
               Skills[i].Cap = skillSpecCap;
 
@@ -182,8 +267,34 @@ namespace Server.Mobiles
             }
         }
 
+        public bool CanEvolveClass()
+        {
+            if(Classe.LevelToEvolve(m_Classe.ClasseLvl + 1 ) >= m_Niveau)
+                return true;
+            else
+                return false;
+        }
 
 
+        public bool CanEvolveTo(Classe evolution)
+        {
+            if (this.AccessLevel > AccessLevel.Player)
+			{
+				return true;
+			}
+            else if (!CanEvolveClass())
+            {
+                return false;
+            }
+            else if(!m_Classe.Evolution.Contains(evolution.ClasseID))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
         public override void Deserialize(GenericReader reader)
         {
@@ -195,6 +306,7 @@ namespace Server.Mobiles
 			{
         			case 0:
                     {
+                        m_Classe = Classe.GetClasse(reader.ReadInt());
                         m_Metier = Metier.GetMetier(reader.ReadInt());
                         m_Niveau = reader.ReadInt();
                         m_lastLoginTime = reader.ReadDateTime();    
@@ -212,6 +324,7 @@ namespace Server.Mobiles
             base.Serialize(writer);
 
             writer.Write(0); // version
+            writer.Write(m_Classe.ClasseID);
             writer.Write(m_Metier.MetierID);
             writer.Write(m_Niveau);
             writer.Write(m_lastLoginTime);

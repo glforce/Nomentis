@@ -194,6 +194,7 @@ namespace Server.Misc
                     young = pm.Young = true;
 
                 pm.Metier = Metier.GetMetier(0);
+                pm.Classe = Classe.GetClasse(0);
             }
 
             SetName(newChar, args.Name);
