@@ -59,6 +59,7 @@ namespace Server.Gumps
 			AddHtmlTexte(x + 150, y + yLine * 20, 150, m_Classe.Armor.ToString());
 			yLine++;
 
+			AddButtonHtlml(x + 10, y + yLine * 20,4,"Index des classes", "#FFFFFF");
 
 			AddSection(x + 295, y, 300, 240, "Évolutions");
 
@@ -143,6 +144,10 @@ namespace Server.Gumps
 					m_From.SendGump(new ClasseGump(m_From, m_List[m_Index],m_List,m_Index));
 				}
 			}
+			else if(info.ButtonID == 4)
+			{
+				m_From.SendGump(new ClasseIndexGump(m_From));
+			}
 			else if (info.ButtonID >= 1000)
 			{
 				int NewClasseId = info.ButtonID - 1000;
@@ -151,11 +156,16 @@ namespace Server.Gumps
 
 				int NewIndex = 0;
 
-				while (NewIndex <= m_Index)
-				{
-					newList.Add(m_List[NewIndex]);
-					NewIndex++;
-				}
+
+					while (NewIndex <= m_Index && m_List.Count > 0)
+					{
+						newList.Add(m_List[NewIndex]);
+						NewIndex++;
+					}
+				
+
+
+			
 
 				newList.Add(NewClasseId);
 				m_Index++;
