@@ -1,0 +1,817 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<classes>
+  <requirements>
+    <requirement>0</requirement>
+    <requirement>5</requirement>
+    <requirement>15</requirement>
+    <requirement>20</requirement>
+    <requirement>30</requirement>
+  </requirements>
+  <main>
+    <classes>
+      <class id="0" name="Aucune" hidden="true">
+        <skills />
+        <armors>
+          <armor>Cloth</armor>
+        </armors>
+        <classes />
+      </class>
+      <class id="1" name="Humain">
+        <skills />
+        <armors>
+          <armor>Cloth</armor>
+        </armors>
+        <classes>
+          <class id="4" name="Recrue">
+            <skills>
+              <skill name="Anatomy">50</skill>
+              <skill name="Parry">50</skill>
+              <skill name="Healing">50</skill>
+              <skill name="MagicResist">50</skill>
+              <skill name="Tactics">50</skill>
+              <skill name="Swords">50</skill>
+              <skill name="Macing">50</skill>
+              <skill name="Fencing">50</skill>
+              <skill name="Wrestling">50</skill>
+              <skill name="Focus">50</skill>
+            </skills>
+            <armors>
+              <armor>Cloth</armor>
+              <armor>Leather</armor>
+              <armor>Studded</armor>
+            </armors>
+            <classes>
+              <class id="9" name="Combattant">
+                <skills>
+                  <skill name="Anatomy">75</skill>
+                  <skill name="Parry">75</skill>
+                  <skill name="Healing">75</skill>
+                  <skill name="MagicResist">75</skill>
+                  <skill name="Tactics">75</skill>
+                  <skill name="Swords">75</skill>
+                  <skill name="Macing">75</skill>
+                  <skill name="Focus">75</skill>
+                </skills>
+                <armors>
+                  <armor>Cloth</armor>
+                  <armor>Leather</armor>
+                  <armor>Studded</armor>
+                  <armor>Bone</armor>
+                  <armor>Ringmail</armor>
+                  <armor>Wood</armor>
+                  <armor>Stone</armor>
+                </armors>
+                <classes>
+                  <class id="10" name="Champion">
+                    <skills>
+                      <skill name="Anatomy">85</skill>
+                      <skill name="Parry">85</skill>
+                      <skill name="Healing">85</skill>
+                      <skill name="MagicResist">85</skill>
+                      <skill name="Tactics">85</skill>
+                      <skill name="Swords">85</skill>
+                      <skill name="Macing">85</skill>
+                      <skill name="Focus">85</skill>
+                      <skill name="Bushido">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                      <armor>Bone</armor>
+                      <armor>Ringmail</armor>
+                      <armor>Wood</armor>
+                      <armor>Stone</armor>
+                      <armor>Chainmail</armor>
+                    </armors>
+                    <classes>
+                      <class id="11" name="Maitre d’arme">
+                        <skills>
+                          <skill name="Anatomy">100</skill>
+                          <skill name="Parry">100</skill>
+                          <skill name="Healing">100</skill>
+                          <skill name="MagicResist">100</skill>
+                          <skill name="Tactics">100</skill>
+                          <skill name="Swords">100</skill>
+                          <skill name="Macing">100</skill>
+                          <skill name="Focus">100</skill>
+                          <skill name="Bushido">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                          <armor>Bone</armor>
+                          <armor>Ringmail</armor>
+                          <armor>Wood</armor>
+                          <armor>Stone</armor>
+                          <armor>Chainmail</armor>
+                          <armor>Plate</armor>
+                          <armor>Dragon</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                  <class id="12" name="Templier">
+                    <skills>
+                      <skill name="Parry">85</skill>
+                      <skill name="MagicResist">85</skill>
+                      <skill name="Tactics">85</skill>
+                      <skill name="Swords">85</skill>
+                      <skill name="Macing">85</skill>
+                      <skill name="Focus">85</skill>
+                      <skill name="Chivalry">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                      <armor>Bone</armor>
+                      <armor>Ringmail</armor>
+                      <armor>Wood</armor>
+                      <armor>Stone</armor>
+                      <armor>Chainmail</armor>
+                    </armors>
+                    <classes>
+                      <class id="13" name="Paladin">
+                        <skills>
+                          <skill name="Parry">100</skill>
+                          <skill name="MagicResist">100</skill>
+                          <skill name="Tactics">100</skill>
+                          <skill name="Swords">100</skill>
+                          <skill name="Macing">100</skill>
+                          <skill name="Focus">100</skill>
+                          <skill name="Chivalry">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                          <armor>Bone</armor>
+                          <armor>Ringmail</armor>
+                          <armor>Wood</armor>
+                          <armor>Stone</armor>
+                          <armor>Chainmail</armor>
+                          <armor>Plate</armor>
+                          <armor>Dragon</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                </classes>
+              </class>
+              <class id="14" name="Crapule">
+                <skills>
+                  <skill name="Anatomy">50</skill>
+                  <skill name="Parry">50</skill>
+                  <skill name="Healing">50</skill>
+                  <skill name="Hiding">75</skill>
+                  <skill name="MagicResist">75</skill>
+                  <skill name="Tactics">50</skill>
+                  <skill name="Swords">75</skill>
+                  <skill name="Fencing">75</skill>
+                  <skill name="Stealth">75</skill>
+                  <skill name="Focus">50</skill>
+                </skills>
+                <armors>
+                  <armor>Cloth</armor>
+                  <armor>Leather</armor>
+                  <armor>Studded</armor>
+                  <armor>Bone</armor>
+                </armors>
+                <classes>
+                  <class id="15" name="Tueur">
+                    <skills>
+                      <skill name="Anatomy">50</skill>
+                      <skill name="Healing">50</skill>
+                      <skill name="Hiding">85</skill>
+                      <skill name="MagicResist">75</skill>
+                      <skill name="Tactics">85</skill>
+                      <skill name="Poisoning">85</skill>
+                      <skill name="Fencing">85</skill>
+                      <skill name="Stealth">85</skill>
+                      <skill name="Focus">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                      <armor>Bone</armor>
+                      <armor>Ringmail</armor>
+                      <armor>Wood</armor>
+                      <armor>Stone</armor>
+                    </armors>
+                    <classes>
+                      <class id="16" name="Assassin">
+                        <skills>
+                          <skill name="Anatomy">50</skill>
+                          <skill name="Healing">50</skill>
+                          <skill name="Hiding">100</skill>
+                          <skill name="MagicResist">75</skill>
+                          <skill name="Tactics">100</skill>
+                          <skill name="Poisoning">100</skill>
+                          <skill name="Fencing">100</skill>
+                          <skill name="Stealth">100</skill>
+                          <skill name="Focus">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                          <armor>Bone</armor>
+                          <armor>Ringmail</armor>
+                          <armor>Wood</armor>
+                          <armor>Stone</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                  <class id="17" name="Ninja">
+                    <skills>
+                      <skill name="Parry">85</skill>
+                      <skill name="Hiding">85</skill>
+                      <skill name="MagicResist">75</skill>
+                      <skill name="Swords">85</skill>
+                      <skill name="Fencing">85</skill>
+                      <skill name="Stealth">85</skill>
+                      <skill name="Focus">85</skill>
+                      <skill name="Ninjitsu">85</skill>
+                      <skill name="Throwing">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                      <armor>Bone</armor>
+                      <armor>Ringmail</armor>
+                      <armor>Wood</armor>
+                      <armor>Stone</armor>
+                    </armors>
+                    <classes>
+                      <class id="18" name="Shinobi">
+                        <skills>
+                          <skill name="Parry">100</skill>
+                          <skill name="Hiding">100</skill>
+                          <skill name="MagicResist">75</skill>
+                          <skill name="Swords">100</skill>
+                          <skill name="Fencing">100</skill>
+                          <skill name="Stealth">100</skill>
+                          <skill name="Focus">100</skill>
+                          <skill name="Ninjitsu">100</skill>
+                          <skill name="Throwing">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                          <armor>Bone</armor>
+                          <armor>Ringmail</armor>
+                          <armor>Wood</armor>
+                          <armor>Stone</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                  <class id="19" name="Cambrioleur">
+                    <skills>
+                      <skill name="Anatomy">50</skill>
+                      <skill name="DetectHidden">85</skill>
+                      <skill name="Healing">50</skill>
+                      <skill name="Hiding">85</skill>
+                      <skill name="Lockpicking">85</skill>
+                      <skill name="Tactics">85</skill>
+                      <skill name="Snooping">85</skill>
+                      <skill name="Poisoning">70</skill>
+                      <skill name="Stealing">85</skill>
+                      <skill name="Tracking">85</skill>
+                      <skill name="Fencing">85</skill>
+                      <skill name="Stealth">85</skill>
+                      <skill name="RemoveTrap">85</skill>
+                      <skill name="Focus">50</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                      <armor>Bone</armor>
+                    </armors>
+                    <classes>
+                      <class id="20" name="Voleur">
+                        <skills>
+                          <skill name="Anatomy">50</skill>
+                          <skill name="DetectHidden">100</skill>
+                          <skill name="Healing">50</skill>
+                          <skill name="Hiding">100</skill>
+                          <skill name="Lockpicking">100</skill>
+                          <skill name="Tactics">100</skill>
+                          <skill name="Snooping">100</skill>
+                          <skill name="Poisoning">70</skill>
+                          <skill name="Stealing">100</skill>
+                          <skill name="Tracking">100</skill>
+                          <skill name="Fencing">100</skill>
+                          <skill name="Stealth">100</skill>
+                          <skill name="RemoveTrap">100</skill>
+                          <skill name="Focus">50</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                          <armor>Bone</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                </classes>
+              </class>
+            </classes>
+          </class>
+          <class id="5" name="Apprenti">
+            <skills>
+              <skill name="Anatomy">50</skill>
+              <skill name="EvalInt">50</skill>
+              <skill name="Magery">50</skill>
+              <skill name="MagicResist">50</skill>
+              <skill name="Meditation">50</skill>
+            </skills>
+            <armors>
+              <armor>Cloth</armor>
+              <armor>Leather</armor>
+            </armors>
+            <classes>
+              <class id="21" name="Magicien">
+                <skills>
+                  <skill name="Anatomy">75</skill>
+                  <skill name="EvalInt">75</skill>
+                  <skill name="Magery">75</skill>
+                  <skill name="MagicResist">75</skill>
+                  <skill name="Meditation">75</skill>
+                </skills>
+                <armors>
+                  <armor>Cloth</armor>
+                  <armor>Leather</armor>
+                </armors>
+                <classes>
+                  <class id="22" name="Sorcier Noir">
+                    <skills>
+                      <skill name="Anatomy">85</skill>
+                      <skill name="EvalInt">85</skill>
+                      <skill name="Magery">85</skill>
+                      <skill name="MagicResist">85</skill>
+                      <skill name="Poisoning">85</skill>
+                      <skill name="SpiritSpeak">85</skill>
+                      <skill name="Meditation">85</skill>
+                      <skill name="Necromancy">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                    </armors>
+                    <classes>
+                      <class id="23" name="Necromancien">
+                        <skills>
+                          <skill name="Anatomy">100</skill>
+                          <skill name="EvalInt">100</skill>
+                          <skill name="Magery">100</skill>
+                          <skill name="MagicResist">100</skill>
+                          <skill name="Poisoning">100</skill>
+                          <skill name="SpiritSpeak">100</skill>
+                          <skill name="Meditation">100</skill>
+                          <skill name="Necromancy">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                          <armor>Bone</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                  <class id="24" name="Ermite">
+                    <skills>
+                      <skill name="Anatomy">85</skill>
+                      <skill name="EvalInt">85</skill>
+                      <skill name="Magery">85</skill>
+                      <skill name="MagicResist">85</skill>
+                      <skill name="Meditation">85</skill>
+                      <skill name="Spellweaving">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                    </armors>
+                    <classes>
+                      <class id="25" name="Druide">
+                        <skills>
+                          <skill name="Anatomy">100</skill>
+                          <skill name="EvalInt">100</skill>
+                          <skill name="Magery">100</skill>
+                          <skill name="MagicResist">100</skill>
+                          <skill name="Meditation">100</skill>
+                          <skill name="Spellweaving">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                </classes>
+              </class>
+            </classes>
+          </class>
+          <class id="6" name="Chasseur">
+            <skills>
+              <skill name="Anatomy">50</skill>
+              <skill name="Healing">50</skill>
+              <skill name="MagicResist">50</skill>
+              <skill name="Tactics">50</skill>
+              <skill name="Archery">50</skill>
+              <skill name="Tracking">50</skill>
+              <skill name="Focus">50</skill>
+            </skills>
+            <armors>
+              <armor>Cloth</armor>
+              <armor>Leather</armor>
+              <armor>Studded</armor>
+            </armors>
+            <classes />
+          </class>
+          <class id="7" name="Troubadour">
+            <skills>
+              <skill name="Peacemaking">50</skill>
+              <skill name="Discordance">50</skill>
+              <skill name="Provocation">50</skill>
+              <skill name="MagicResist">50</skill>
+              <skill name="Tactics">50</skill>
+              <skill name="Musicianship">50</skill>
+              <skill name="Focus">50</skill>
+              <skill name="Throwing">50</skill>
+            </skills>
+            <armors>
+              <armor>Cloth</armor>
+              <armor>Leather</armor>
+            </armors>
+            <classes>
+              <class id="37" name="Baladin">
+                <skills>
+                  <skill name="Peacemaking">75</skill>
+                  <skill name="Discordance">75</skill>
+                  <skill name="Provocation">75</skill>
+                  <skill name="MagicResist">75</skill>
+                  <skill name="Tactics">75</skill>
+                  <skill name="Musicianship">75</skill>
+                  <skill name="Focus">75</skill>
+                  <skill name="Throwing">75</skill>
+                </skills>
+                <armors>
+                  <armor>Cloth</armor>
+                  <armor>Leather</armor>
+                  <armor>Studded</armor>
+                </armors>
+                <classes>
+                  <class id="38" name="Chanteur Lame">
+                    <skills>
+                      <skill name="Peacemaking">85</skill>
+                      <skill name="Discordance">85</skill>
+                      <skill name="Provocation">85</skill>
+                      <skill name="MagicResist">85</skill>
+                      <skill name="Tactics">85</skill>
+                      <skill name="Musicianship">85</skill>
+                      <skill name="Swords">85</skill>
+                      <skill name="Focus">85</skill>
+                      <skill name="Throwing">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                      <armor>Bone</armor>
+                      <armor>Ringmail</armor>
+                      <armor>Wood</armor>
+                      <armor>Stone</armor>
+                    </armors>
+                    <classes>
+                      <class id="39" name="Danseur de lame">
+                        <skills>
+                          <skill name="Peacemaking">100</skill>
+                          <skill name="Discordance">100</skill>
+                          <skill name="Provocation">100</skill>
+                          <skill name="MagicResist">100</skill>
+                          <skill name="Tactics">100</skill>
+                          <skill name="Musicianship">100</skill>
+                          <skill name="Swords">100</skill>
+                          <skill name="Focus">100</skill>
+                          <skill name="Throwing">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                          <armor>Bone</armor>
+                          <armor>Ringmail</armor>
+                          <armor>Wood</armor>
+                          <armor>Stone</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                  <class id="40" name="Menestrel">
+                    <skills>
+                      <skill name="Anatomy">85</skill>
+                      <skill name="Peacemaking">85</skill>
+                      <skill name="Discordance">85</skill>
+                      <skill name="EvalInt">85</skill>
+                      <skill name="Provocation">85</skill>
+                      <skill name="Magery">85</skill>
+                      <skill name="MagicResist">85</skill>
+                      <skill name="Musicianship">85</skill>
+                      <skill name="Meditation">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                    </armors>
+                    <classes>
+                      <class id="41" name="Barde">
+                        <skills>
+                          <skill name="Anatomy">100</skill>
+                          <skill name="Peacemaking">100</skill>
+                          <skill name="Discordance">100</skill>
+                          <skill name="EvalInt">100</skill>
+                          <skill name="Provocation">100</skill>
+                          <skill name="Magery">100</skill>
+                          <skill name="MagicResist">100</skill>
+                          <skill name="Musicianship">100</skill>
+                          <skill name="Meditation">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                  <class id="42" name="Barde-Dresseur">
+                    <skills>
+                      <skill name="AnimalLore">85</skill>
+                      <skill name="Peacemaking">85</skill>
+                      <skill name="Discordance">85</skill>
+                      <skill name="Healing">85</skill>
+                      <skill name="Herding">85</skill>
+                      <skill name="Provocation">85</skill>
+                      <skill name="MagicResist">85</skill>
+                      <skill name="Musicianship">85</skill>
+                      <skill name="AnimalTaming">85</skill>
+                      <skill name="Veterinary">85</skill>
+                      <skill name="Wrestling">85</skill>
+                      <skill name="Focus">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                    </armors>
+                    <classes>
+                      <class id="43" name="Barde-Menestrel">
+                        <skills>
+                          <skill name="AnimalLore">100</skill>
+                          <skill name="Peacemaking">100</skill>
+                          <skill name="Discordance">100</skill>
+                          <skill name="Healing">100</skill>
+                          <skill name="Herding">100</skill>
+                          <skill name="Provocation">100</skill>
+                          <skill name="MagicResist">100</skill>
+                          <skill name="Musicianship">100</skill>
+                          <skill name="AnimalTaming">100</skill>
+                          <skill name="Veterinary">100</skill>
+                          <skill name="Wrestling">100</skill>
+                          <skill name="Focus">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                </classes>
+              </class>
+            </classes>
+          </class>
+          <class id="8" name="Voyageur">
+            <skills>
+              <skill name="Anatomy">50</skill>
+              <skill name="AnimalLore">50</skill>
+              <skill name="Healing">50</skill>
+              <skill name="Herding">50</skill>
+              <skill name="AnimalTaming">50</skill>
+              <skill name="Veterinary">50</skill>
+              <skill name="Macing">50</skill>
+              <skill name="Focus">50</skill>
+            </skills>
+            <armors>
+              <armor>Cloth</armor>
+              <armor>Leather</armor>
+            </armors>
+            <classes>
+              <class id="44" name="Compagnon">
+                <skills>
+                  <skill name="Anatomy">75</skill>
+                  <skill name="AnimalLore">75</skill>
+                  <skill name="Healing">75</skill>
+                  <skill name="Herding">75</skill>
+                  <skill name="AnimalTaming">75</skill>
+                  <skill name="Veterinary">75</skill>
+                  <skill name="Macing">75</skill>
+                  <skill name="Focus">75</skill>
+                </skills>
+                <armors>
+                  <armor>Cloth</armor>
+                  <armor>Leather</armor>
+                  <armor>Studded</armor>
+                </armors>
+                <classes>
+                  <class id="31" name="Forestier">
+                    <skills>
+                      <skill name="Anatomy">85</skill>
+                      <skill name="AnimalLore">85</skill>
+                      <skill name="Healing">85</skill>
+                      <skill name="Herding">85</skill>
+                      <skill name="MagicResist">75</skill>
+                      <skill name="Tactics">75</skill>
+                      <skill name="Archery">85</skill>
+                      <skill name="AnimalTaming">85</skill>
+                      <skill name="Veterinary">85</skill>
+                      <skill name="Focus">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                      <armor>Bone</armor>
+                      <armor>Ringmail</armor>
+                      <armor>Wood</armor>
+                      <armor>Stone</armor>
+                    </armors>
+                    <classes>
+                      <class id="32" name="Rodeur">
+                        <skills>
+                          <skill name="Anatomy">100</skill>
+                          <skill name="AnimalLore">100</skill>
+                          <skill name="Healing">100</skill>
+                          <skill name="Herding">100</skill>
+                          <skill name="MagicResist">75</skill>
+                          <skill name="Tactics">75</skill>
+                          <skill name="Archery">100</skill>
+                          <skill name="AnimalTaming">100</skill>
+                          <skill name="Veterinary">100</skill>
+                          <skill name="Focus">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                          <armor>Bone</armor>
+                          <armor>Ringmail</armor>
+                          <armor>Wood</armor>
+                          <armor>Stone</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                  <class id="45" name="Mentor">
+                    <skills>
+                      <skill name="Anatomy">85</skill>
+                      <skill name="AnimalLore">85</skill>
+                      <skill name="EvalInt">85</skill>
+                      <skill name="Healing">85</skill>
+                      <skill name="Herding">85</skill>
+                      <skill name="Magery">85</skill>
+                      <skill name="MagicResist">85</skill>
+                      <skill name="AnimalTaming">85</skill>
+                      <skill name="Veterinary">85</skill>
+                      <skill name="Meditation">85</skill>
+                    </skills>
+                    <armors>
+                      <armor>Cloth</armor>
+                      <armor>Leather</armor>
+                      <armor>Studded</armor>
+                    </armors>
+                    <classes>
+                      <class id="46" name="Shaman">
+                        <skills>
+                          <skill name="Anatomy">100</skill>
+                          <skill name="AnimalLore">100</skill>
+                          <skill name="EvalInt">100</skill>
+                          <skill name="Healing">100</skill>
+                          <skill name="Herding">100</skill>
+                          <skill name="Magery">100</skill>
+                          <skill name="MagicResist">100</skill>
+                          <skill name="AnimalTaming">100</skill>
+                          <skill name="Veterinary">100</skill>
+                          <skill name="Meditation">100</skill>
+                        </skills>
+                        <armors>
+                          <armor>Cloth</armor>
+                          <armor>Leather</armor>
+                          <armor>Studded</armor>
+                        </armors>
+                        <classes />
+                      </class>
+                    </classes>
+                  </class>
+                </classes>
+              </class>
+            </classes>
+          </class>
+        </classes>
+      </class>
+      <class id="2" name="Vampire">
+        <skills />
+        <armors>
+          <armor>Cloth</armor>
+        </armors>
+        <classes />
+      </class>
+      <class id="3" name="Lycan">
+        <skills />
+        <armors>
+          <armor>Cloth</armor>
+        </armors>
+        <classes />
+      </class>
+    </classes>
+  </main>
+  <job>
+    <classes>
+      <class id="0" name="Aucun">
+        <skills />
+      </class>
+      <class id="1" name="Forgeron">
+        <skills>
+          <skill name="Blacksmith">100</skill>
+          <skill name="Mining">100</skill>
+          <skill name="ArmsLore">100</skill>
+        </skills>
+      </class>
+      <class id="2" name="Alchemiste">
+        <skills>
+          <skill name="Alchemy">100</skill>
+          <skill name="Fishing">100</skill>
+          <skill name="Cooking">100</skill>
+          <skill name="TasteID">100</skill>
+        </skills>
+      </class>
+      <class id="3" name="Menusier">
+        <skills>
+          <skill name="Fletching">100</skill>
+          <skill name="Carpentry">100</skill>
+          <skill name="Lumberjacking">100</skill>
+          <skill name="ArmsLore">100</skill>
+        </skills>
+      </class>
+      <class id="4" name="Enchanteur">
+        <skills>
+          <skill name="Imbuing">100</skill>
+          <skill name="Inscribe">100</skill>
+          <skill name="Cartography">100</skill>
+        </skills>
+      </class>
+      <class id="5" name="Couturier">
+        <skills>
+          <skill name="Tailoring">100</skill>
+          <skill name="Tinkering">100</skill>
+          <skill name="Lumberjacking">50</skill>
+          <skill name="Mining">50</skill>
+        </skills>
+      </class>
+      <class id="6" name="Extracteur">
+        <skills>
+          <skill name="Lumberjacking">100</skill>
+          <skill name="Mining">100</skill>
+          <skill name="Fishing">100</skill>
+        </skills>
+      </class>
+    </classes>
+  </job>
+</classes>

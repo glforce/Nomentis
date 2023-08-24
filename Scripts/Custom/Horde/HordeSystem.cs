@@ -5,10 +5,10 @@ using System.Linq;
 using Server.Commands;
 using Server.Mobiles;
 using Server.Network;
-using System.Xml;
 using Server.Gumps;
+using System.Xml.Linq;
 
-namespace Server.Services.Horde
+namespace Server.Custom.Horde
 {
 	public struct HordePreset
 	{
@@ -46,42 +46,39 @@ namespace Server.Services.Horde
 
 		private static void LoadHordeConfig()
 		{
-			XmlDocument XmlDocument = new XmlDocument();
-			XmlDocument.Load(ConfigFilePath);
+			var XmlDocument = XDocument.Load(ConfigFilePath);
 
-			foreach (XmlNode Node in XmlDocument.GetElementsByTagName("hordes")[0].ChildNodes)
+			foreach (var Node in XmlDocument.Root.Element("hordes").Elements())
 			{
-				HordePreset Config = new HordePreset()
+				var Config = new HordePreset()
 				{
-					Duration = TimeSpan.Parse(Node.Attributes["duration"]?.Value ?? "00:01:00"),
-					WaveCount = int.Parse(Node.Attributes["waves"]?.Value ?? "0"),
-					DelayBetweenWaves = TimeSpan.Parse(Node.Attributes["delay"]?.Value ?? "00:00:00"),
+					Duration = TimeSpan.Parse(Node.Attribute("duration")?.Value ?? "00:01:00"),
+					WaveCount = int.Parse(Node.Attribute("waves")?.Value ?? "0"),
+					DelayBetweenWaves = TimeSpan.Parse(Node.Attribute("delay")?.Value ?? "00:00:00"),
 					SpawnedTypes = LoadHordePresetSpawnedTypes(Node),
-					MaxAliveCreatures = int.Parse(Node.Attributes["maxalive"]?.Value ?? "0"),
-					WarningDelay = TimeSpan.Parse(Node.Attributes["warningdelay"]?.Value ?? "00:00:30"),
-					WarningCount = int.Parse(Node.Attributes["warningcount"]?.Value ?? "0")
+					MaxAliveCreatures = int.Parse(Node.Attribute("maxalive")?.Value ?? "0"),
+					WarningDelay = TimeSpan.Parse(Node.Attribute("warningdelay")?.Value ?? "00:00:30"),
+					WarningCount = int.Parse(Node.Attribute("warningcount")?.Value ?? "0")
 				};
 
-				HordePresets.Add(Node.Name, Config);
+				HordePresets.Add(Node.Name.ToString(), Config);
 			}
 
-			foreach (XmlNode Node in XmlDocument.GetElementsByTagName("warnings")[0].ChildNodes)
-			{
-				HordeWarnings.Add(Node.InnerText);
-			}
+			HordeWarnings = XmlDocument.Root.Element("warnings")
+				.Descendants()
+				.Select(Warning => Warning.Value)
+				.ToList();
 		}
 
-		private static List<Tuple<Type, int>> LoadHordePresetSpawnedTypes(XmlNode HordeNode)
+		private static List<Tuple<Type, int>> LoadHordePresetSpawnedTypes(XElement HordeNode)
 		{
-			List<Tuple<Type, int>> SpawnedTypes = new List<Tuple<Type, int>>();
+			var SpawnedTypes = new List<Tuple<Type, int>>();
 
-			foreach(XmlNode Node in HordeNode.ChildNodes)
+			foreach (var Node in HordeNode.Descendants())
 			{
-				Type Type = SpawnerType.GetType(Node.Attributes["name"].Value);
+				var Type = SpawnerType.GetType(Node.Attribute("name").Value);
 				if (Type != null && Type.IsSubclassOf(typeof(BaseCreature)))
-				{
-					SpawnedTypes.Add(new Tuple<Type, int>(Type, int.Parse(Node.Attributes["weight"].Value)));
-				}
+					SpawnedTypes.Add(new Tuple<Type, int>(Type, int.Parse(Node.Attribute("weight").Value)));
 			}
 
 			return SpawnedTypes;
@@ -100,9 +97,7 @@ namespace Server.Services.Horde
 					   CurrentHorde.Serialize(Writer);
 				   }
 				   else
-				   {
 					   Writer.Write(false);
-				   }
 			   });
 		}
 
@@ -112,7 +107,7 @@ namespace Server.Services.Horde
 			   SaveFilePath,
 			   Reader =>
 			   {
-				   if(Reader.ReadBool())
+				   if (Reader.ReadBool())
 				   {
 					   CurrentHorde = new Horde();
 					   CurrentHorde.Deserialize(Reader);
@@ -133,7 +128,7 @@ namespace Server.Services.Horde
 		[Usage("StartHorde")]
 		private static void StartHorde(CommandEventArgs e)
 		{
-			PlayerMobile PlayerMobile = e.Mobile as PlayerMobile;
+			var PlayerMobile = e.Mobile as PlayerMobile;
 
 			if (IsCurrentHordeActive())
 			{
@@ -141,43 +136,35 @@ namespace Server.Services.Horde
 				return;
 			}
 
-			string PresetName = e.Arguments.ElementAtOrDefault(0) ?? "default";
+			var PresetName = e.Arguments.ElementAtOrDefault(0) ?? "default";
 			HordePreset Preset;
 			if (HordePresets.TryGetValue(PresetName, out Preset))
-			{
 				AskForConfirmation(PlayerMobile, string.Format("Vous allez lancer la horde {0}. Êtes-vous sûr?", PresetName), () =>
 				{
 					CurrentHorde = new Horde(Preset);
 					CurrentHorde.Start();
 				});
-			}
 			else
-			{
 				PlayerMobile.SendMessage("Could not find horde preset named {0}", PresetName);
-			}
 		}
 
 		[Usage("EndHorde")]
 		private static void EndHorde(CommandEventArgs e)
 		{
 			if (CurrentHorde?.IsActive() == true)
-			{
 				AskForConfirmation(e.Mobile as PlayerMobile, "Vous allez interrompre la horde en cours. Êtes-vous sûr?", () =>
 				{
 					CurrentHorde?.End();
 					CurrentHorde = null;
 				});
-			}
 			else
-			{
 				(e.Mobile as PlayerMobile).SendMessage("No horde in progress.");
-			}
 		}
 
 		[Usage("HordePresets")]
 		private static void ListHordePresets(CommandEventArgs e)
 		{
-			string PresetNames = String.Join(", ", HordePresets.Keys);
+			var PresetNames = String.Join(", ", HordePresets.Keys);
 
 			(e.Mobile as PlayerMobile).SendMessage("Available horde presets: {0}", PresetNames);
 		}
@@ -224,31 +211,23 @@ namespace Server.Services.Horde
 
 			private static List<Type> GetSpawnedTypesFromWeightedList(List<Tuple<Type, int>> WeightedList)
 			{
-				List<Type> SpawnedTypes = new List<Type>();
+				var SpawnedTypes = new List<Type>();
 
 				if (WeightedList.Count == 0)
-				{
 					SpawnedTypes.Add(typeof(CorruptedHorror));
-				}
 				else
-				{
-					foreach(Tuple<Type, int> Entry in WeightedList)
-					{
-						for(int i = 0; i < Entry.Item2; i++)
-						{
+					foreach (var Entry in WeightedList)
+						for (var i = 0; i < Entry.Item2; i++)
 							SpawnedTypes.Add(Entry.Item1);
-						}
-					}
-				}
 
 				return SpawnedTypes;
 			}
 
 			private void Setup(
-				TimeSpan Duration, 
-				int WaveCount, 
-				TimeSpan DelayBetweenWaves, 
-				List<Type> SpawnedTypes, 
+				TimeSpan Duration,
+				int WaveCount,
+				TimeSpan DelayBetweenWaves,
+				List<Type> SpawnedTypes,
 				int MaxAliveCreatures,
 				TimeSpan WarningDelay,
 				int WarningCount)
@@ -285,7 +264,8 @@ namespace Server.Services.Horde
 				World.Broadcast(0xff, false, AccessLevel.Player, "The horde recedes...");
 			}
 
-			public bool IsActive() {
+			public bool IsActive()
+			{
 				return WaveCount > 0 && DateTime.Now < EndTime;
 			}
 
@@ -296,7 +276,7 @@ namespace Server.Services.Horde
 					TimeSpan DelayForNextWave;
 					if (WarningCount > 0)
 					{
-						int WarningIndex = Math.Min(MaxWarning - WarningCount, HordeWarnings.Count - 1);
+						var WarningIndex = Math.Min(MaxWarning - WarningCount, HordeWarnings.Count - 1);
 
 						WarningCount--;
 
@@ -316,29 +296,24 @@ namespace Server.Services.Horde
 					Timer = Timer.DelayCall(DelayForNextWave, Trigger);
 				}
 				else
-				{
 					End();
-				}
 			}
 
 			private void SpawnCreatures()
 			{
 				if (SpawnedCreatures.Count(Creature => Creature.Alive) >= MaxAliveCreatures)
-				{
 					return;
-				}
 
-				foreach (NetState Instance in NetState.Instances)
-				{
+				foreach (var Instance in NetState.Instances)
 					if (Instance.Mobile is PlayerMobile)
 					{
-						Map Map = Instance.Mobile.Map;
+						var Map = Instance.Mobile.Map;
 
-						BaseCreature Creature = Activator.CreateInstance(SpawnedTypes[Utility.Random(SpawnedTypes.Count)]) as BaseCreature;
+						var Creature = Activator.CreateInstance(SpawnedTypes[Utility.Random(SpawnedTypes.Count)]) as BaseCreature;
 
-						Point2D SpawnLocation = SafeZones.GetLocationOutsideOfSafeZone(Instance.Mobile, SpawnRangeMin, SpawnRangeMax);
-						Point3D ValidSpawnLocation = Map.GetSpawnPosition(new Point3D(SpawnLocation.X, SpawnLocation.Y, Map.GetAverageZ(SpawnLocation.X, SpawnLocation.Y)), SpawnRangeMin);
-						
+						var SpawnLocation = SafeZones.GetLocationOutsideOfSafeZone(Instance.Mobile, SpawnRangeMin, SpawnRangeMax);
+						var ValidSpawnLocation = Map.GetSpawnPosition(new Point3D(SpawnLocation.X, SpawnLocation.Y, Map.GetAverageZ(SpawnLocation.X, SpawnLocation.Y)), SpawnRangeMin);
+
 						if (!SafeZones.IsInSafeZone(Map, ValidSpawnLocation))
 						{
 							Creature.MoveToWorld(ValidSpawnLocation, Map);
@@ -346,17 +321,14 @@ namespace Server.Services.Horde
 							SpawnedCreatures.Add(Creature);
 						}
 						else
-						{
 							// Fail-safe in case the valid spawn position was in another safe zone
 							Creature.Delete();
-						}
 					}
-				}
 			}
 
 			private void DestroySpawnedCreatures()
 			{
-				foreach(BaseCreature Creature in SpawnedCreatures)
+				foreach (var Creature in SpawnedCreatures)
 				{
 					World.RemoveMobile(Creature);
 					Creature.Delete();
@@ -371,57 +343,47 @@ namespace Server.Services.Horde
 				Writer.Write(WaveCount);
 				Writer.Write(DelayBetweenWaves);
 				Writer.Write(SpawnedTypes.Count);
-				foreach(Type Type in SpawnedTypes)
-				{
+				foreach (var Type in SpawnedTypes)
 					Writer.WriteObjectType(Type);
-				}
 
 				Writer.Write(MaxAliveCreatures);
 				Writer.Write(WarningDelay);
 				Writer.Write(WarningCount);
 
 				Writer.Write(SpawnedCreatures.Count);
-				foreach (BaseCreature Creature in SpawnedCreatures)
-				{
+				foreach (var Creature in SpawnedCreatures)
 					if (!Creature.Deleted)
-					{
 						Writer.Write(Creature.Serial);
-					}
-				}
 			}
 
 			public virtual void Deserialize(GenericReader Reader)
 			{
 				Setup(
-					Reader.ReadTimeSpan(), 
-					Reader.ReadInt(), 
 					Reader.ReadTimeSpan(),
-					ReadSpawnedTypes(Reader), 
+					Reader.ReadInt(),
+					Reader.ReadTimeSpan(),
+					ReadSpawnedTypes(Reader),
 					Reader.ReadInt(),
 					Reader.ReadTimeSpan(),
 					Reader.ReadInt()
 					);
 
-				for(int i = 0; i < Reader.ReadInt(); ++i)
+				for (var i = 0; i < Reader.ReadInt(); ++i)
 				{
-					Mobile CreatureMobile = World.FindMobile(Reader.ReadInt());
+					var CreatureMobile = World.FindMobile(Reader.ReadInt());
 					if (CreatureMobile != null && CreatureMobile is BaseCreature && CreatureMobile.Alive)
-					{
 						SpawnedCreatures.Add(CreatureMobile as BaseCreature);
-					}
 				}
 			}
 
 			private static List<Type> ReadSpawnedTypes(GenericReader Reader)
 			{
-				int Count = Reader.ReadInt();
+				var Count = Reader.ReadInt();
 
-				List<Type> SpawnedTypes = new List<Type>(Count);
+				var SpawnedTypes = new List<Type>(Count);
 
-				for (int i = 0; i < Count; ++i) 
-				{
+				for (var i = 0; i < Count; ++i)
 					SpawnedTypes.Add(Reader.ReadObjectType());
-				}
 
 				return SpawnedTypes;
 			}

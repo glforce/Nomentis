@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<levels>
+  <level req="0" skillcap="30" />
+  <level req="6" skillcap="35" />
+  <level req="12" skillcap="40" />
+  <level req="18" skillcap="45" />
+  <level req="24" skillcap="47" />
+  <level req="33" skillcap="50" />
+  <level req="42" skillcap="52" />
+  <level req="51" skillcap="54" />
+  <level req="63" skillcap="56" />
+  <level req="75" skillcap="58" />
+  <level req="90" skillcap="60" />
+  <level req="105" skillcap="63" />
+  <level req="123" skillcap="66" />
+  <level req="141" skillcap="69" />
+  <level req="162" skillcap="72" />
+  <level req="183" skillcap="75" />
+  <level req="207" skillcap="77" />
+  <level req="231" skillcap="79" />
+  <level req="258" skillcap="81" />
+  <level req="285" skillcap="83" />
+  <level req="312" skillcap="85" />
+  <level req="342" skillcap="87" />
+  <level req="372" skillcap="89" />
+  <level req="402" skillcap="91" />
+  <level req="432" skillcap="93" />
+  <level req="462" skillcap="95" />
+  <level req="492" skillcap="96" />
+  <level req="525" skillcap="97" />
+  <level req="558" skillcap="98" />
+  <level req="594" skillcap="99" />
+  <level req="630" skillcap="100" />
+</levels>

@@ -1,56 +1,57 @@
-﻿using System;
-using System.Collections;
-using Server;
+﻿using Server.Custom.Class;
+using Server.Custom.Mobiles;
 using Server.Network;
-using Server.Mobiles;
-using Server.Items;
-using Server.Misc;
 using System.Collections.Generic;
-using Server.Custom;
-using System.Security.Cryptography;
+using System.Linq;
 
 namespace Server.Gumps
 {
-    public class ClasseIndexGump : BaseProjectMGump
+	public class ClasseIndexGump : CustomBaseGump
 	{
-        private CustomPlayerMobile m_From;
+        private CustomPlayerMobile From;
+        private CustomPlayerMobile Target;
 
-        public ClasseIndexGump(CustomPlayerMobile from)
+        public ClasseIndexGump(CustomPlayerMobile From, CustomPlayerMobile Target)
             : base("Classes Index", 560, 622, true)
         {
-            m_From = from;
+			From.CloseGump(typeof(ClasseIndexGump));
+
+            this.From = From;
+            this.Target = Target;
+
 			int x = XBase;
 			int y = YBase;
-			m_From.InvalidateProperties();
+
+			From.InvalidateProperties();
+			Target.InvalidateProperties();
 
             Closable = true;
             Disposable = true;
             Dragable = true;
             Resizable = false;
 
-			int yLine = 0;		
+			int yLine = 0;
 
-			foreach (Classe item in Classe.AllClasse)
-			{			
-				if (item.ClasseLvl == 0 && !item.Hidden)
+			CharacterClasses.MainCharacterClasses.Values
+				.Where(Class =>
 				{
-					AddButtonHtlml(x + 10, y + yLine * 20 + 40,1000 + item.ClasseID,item.Name,"#FFFFFF");
+					return Class.Level == 0 && !Class.Hidden;
+				})
+				.ToList()
+				.ForEach(Class =>
+				{
+					AddButtonHtml(x + 10, y + yLine * 20 + 40, 1000 + Class.ID, Class.Name, "#FFFFFF");
 					yLine++;
-				}		
-			}
+				});
 		}
 
-		public override void OnResponse(NetState sender, RelayInfo info)
+		public override void OnResponse(NetState Sender, RelayInfo Info)
         {
-
-			if (info.ButtonID >= 1000)
+			if (Info.ButtonID >= 1000)
 			{
-				int NewClasseId = info.ButtonID - 1000;
+				int NewClassId = Info.ButtonID - 1000;
 
-				List<int> newList = new List<int>();
-				newList.Add(NewClasseId);
-
-				m_From.SendGump(new ClasseGump(m_From, NewClasseId,newList,0));
+				From.SendGump(new CharacterClassGump(From, Target, new List<int>() { NewClassId }, 0));
 			}
 		}
     }

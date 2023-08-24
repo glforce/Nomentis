@@ -6,7 +6,7 @@ using Server.Items;
 using Server.Menus.Questions;
 using Server.Targeting;
 
-namespace Server.Services.Horde
+namespace Server.Custom.Horde
 {
 	public class CorruptionSystem
 	{
@@ -40,25 +40,19 @@ namespace Server.Services.Horde
 		private static void IncreaseCorruption(CommandEventArgs e)
 		{
 			if (e.Arguments.Count() > 0)
-			{
 				TargetCorruptionAction(e.Mobile, Target => Target.IncreaseCorruption(float.Parse(e.Arguments[0])));
-			}
 		}
 
 		private static void DecreaseCorruption(CommandEventArgs e)
 		{
 			if (e.Arguments.Count() > 0)
-			{
 				TargetCorruptionAction(e.Mobile, Target => Target.IncreaseCorruption(-float.Parse(e.Arguments[0])));
-			}
 		}
 
 		private static void SetCorruption(CommandEventArgs e)
 		{
 			if (e.Arguments.Count() > 0)
-			{
 				TargetCorruptionAction(e.Mobile, Target => Target.Corruption = float.Parse(e.Arguments[0]));
-			}
 		}
 
 		private class CorruptionTarget : Target
@@ -74,9 +68,7 @@ namespace Server.Services.Horde
 			protected override void OnTarget(Mobile From, object Targeted)
 			{
 				if (Targeted is Mobile)
-				{
 					Callback(Targeted as Mobile);
-				}
 			}
 		}
 	}

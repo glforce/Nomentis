@@ -14,7 +14,7 @@ using System.Collections.Generic;
 
 namespace Server.Gumps
 {
-    public class ViewHueGump : BaseProjectMGump
+    public class ViewHueGump : CustomBaseGump
 	{
 
    //     private ArrayList Rewards;

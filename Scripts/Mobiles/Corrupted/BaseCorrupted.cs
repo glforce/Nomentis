@@ -1,4 +1,4 @@
-﻿using Server.Services.Horde;
+﻿using Server.Custom.Horde;
 
 namespace Server.Mobiles.Corrupted
 {

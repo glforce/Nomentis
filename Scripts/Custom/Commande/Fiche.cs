@@ -1,34 +1,44 @@
 using System;
 using Server;
 using Server.Commands;
+using Server.Custom.Mobiles;
 using Server.Gumps;
+using Server.Items;
 using Server.Mobiles;
 using Server.Targeting;
 
 namespace Server.Scripts.Commands
 {
-    public class Fiche
+	public class Fiche
     {
         public static void Initialize()
         {
-            CommandSystem.Register("Fiche", AccessLevel.Player, new CommandEventHandler(Fiche_OnCommand));		
+            CommandSystem.Register("Fiche", AccessLevel.Player, OpenSheet);		
+            CommandSystem.Register("TargetFiche", AccessLevel.GameMaster, OpenTargetSheet);		
 		}
 
         [Usage("Fiche")]
         [Description("Permet d'ouvrir le menu .Fiche")]
-        public static void Fiche_OnCommand(CommandEventArgs e)
+        private static void OpenSheet(CommandEventArgs e)
         {
-            Mobile from = e.Mobile;
+			OnSelectTarget(e.Mobile, e.Mobile);
+		}
 
-            if (from is CustomPlayerMobile)
-            {
-                from.CloseGump(typeof(FicheGump));
+		[Usage("TargetFiche")]
+		[Description("Permet d'ouvrir le menu .Fiche de la cible")]
+		private static void OpenTargetSheet(CommandEventArgs e)
+		{
+			e.Mobile.BeginTarget(12, false, TargetFlags.None, OnSelectTarget);
+		}
 
-
-                from.SendGump(new FicheGump((CustomPlayerMobile)from, null));
-            }
-		}		
-    }
+		private static void OnSelectTarget(Mobile From, object Target)
+		{
+			if (Target is CustomPlayerMobile)
+			{
+				From.SendGump(new FicheGump((CustomPlayerMobile)From, (CustomPlayerMobile)Target));
+			}
+		}
+	}
 }
 
 

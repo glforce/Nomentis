@@ -1,14 +1,15 @@
 #region References
 using Server.Accounting;
+using Server.Custom.Class;
+using Server.Custom.Mobiles;
 using Server.Items;
-using Server.Mobiles;
 using Server.Network;
 using System;
 #endregion
 
 namespace Server.Misc
 {
-    public class CharacterCreation
+	public class CharacterCreation
     {
         private static Mobile m_Mobile;
 
@@ -193,8 +194,8 @@ namespace Server.Misc
                 if (pm.IsPlayer() && pm.Account.Young && !Siege.SiegeShard)
                     young = pm.Young = true;
 
-                pm.Metier = Metier.GetMetier(0);
-                pm.Classe = Classe.GetClasse(0);
+                pm.Class = CharacterClasses.GetMainCharacterClass(0);
+                pm.Job = CharacterClasses.GetJobCharacterClass(0);
             }
 
             SetName(newChar, args.Name);
