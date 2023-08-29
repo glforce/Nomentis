@@ -1,7 +1,6 @@
 #region References
 using Server.Accounting;
 using Server.Commands.Generic;
-using Server.Custom.Class;
 using Server.Network;
 using System;
 using System.Collections;
@@ -100,8 +99,6 @@ namespace Server.Gumps
 		private static readonly Type _TypeOfCPA = typeof(CPA);
 		private static readonly Type _TypeOfObject = typeof(object);
 		private static readonly Type[] _TypeOfReal = { typeof(float), typeof(double) };
-		private static readonly Type _TypeOfMainCharacterClass = typeof(MainCharacterClass);
-		private static readonly Type _TypeOfCharacterClass = typeof(CharacterClass);
 
 		private static readonly Type[] _TypeOfNumeric =
 		{
@@ -481,26 +478,6 @@ namespace Server.Gumps
 							{
 								from.SendGump(
 									new SetListOptionGump(prop, from, m_Object, m_Stack, m_Page, m_List, m_PoisonNames, m_PoisonValues));
-							}
-							else if (IsType(type, _TypeOfMainCharacterClass))
-							{
-								string[] MainCharacterClassNames = CharacterClasses.MainCharacterClasses
-									.Values
-									.Select(Class => Class.Name)
-									.ToArray();
-
-								from.SendGump(
-									 new SetListOptionGump(prop, from, m_Object, m_Stack, m_Page, m_List, MainCharacterClassNames, CharacterClasses.MainCharacterClasses.Values.ToArray()));
-							}
-							else if (IsType(type, _TypeOfCharacterClass))
-							{
-								string[] JobCharacterClassNames = CharacterClasses.JobCharacterClasses
-									.Values
-									.Select(Class => Class.Name)
-									.ToArray();
-
-								from.SendGump(
-									 new SetListOptionGump(prop, from, m_Object, m_Stack, m_Page, m_List, JobCharacterClassNames, CharacterClasses.JobCharacterClasses.Values.ToArray()));
 							}
 							else if (IsType(type, _TypeofDateTime))
 							{

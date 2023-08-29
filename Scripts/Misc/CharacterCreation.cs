@@ -194,7 +194,7 @@ namespace Server.Misc
                 if (pm.IsPlayer() && pm.Account.Young && !Siege.SiegeShard)
                     young = pm.Young = true;
 
-                pm.Class = CharacterClasses.GetMainCharacterClass(0);
+                pm.Class = CharacterClasses.GetMainCharacterClass(pm.Race, 0);
                 pm.Job = CharacterClasses.GetJobCharacterClass(0);
             }
 
@@ -203,7 +203,6 @@ namespace Server.Misc
             AddBackpack(newChar);
 
             SetStats(newChar, state, args.Profession, args.Str, args.Dex, args.Int);
-            SetSkills(newChar, args.Skills, args.Profession);
 
             Race race = newChar.Race;
 

@@ -11,11 +11,11 @@ namespace Server.Custom.Class
 			int ID,
 			string Name,
 			Dictionary<SkillName, double> SkillCaps,
-			int RequiredLevel,
+			int Level,
 			List<int> Evolutions,
 			bool Hidden,
 			List<ArmorMaterialType> AllowedArmorMaterialTypes
-			) : base(ID, Name, SkillCaps, RequiredLevel, Evolutions, Hidden)
+			) : base(ID, Name, SkillCaps, Level, Evolutions, Hidden)
 		{
 			m_AllowedArmorMaterialTypes = AllowedArmorMaterialTypes;
 		}

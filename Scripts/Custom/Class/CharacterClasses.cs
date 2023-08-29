@@ -7,14 +7,22 @@ using System.Xml.Linq;
 using Server.Commands;
 using Server.Gumps;
 using Server.Custom.Mobiles;
+using System.Runtime.InteropServices;
 
 namespace Server.Custom.Class
 {
 	public class CharacterClasses
 	{
+		private struct MainClassSpecialization
+		{
+			public string Name;
+			public Dictionary<SkillName, double> SkillCaps;
+			public List<ArmorMaterialType> AllowedArmorMaterialTypes;
+		}
+
 		private static readonly string ConfigFilePath = Path.Combine("Config", "Classes.xml");
 
-		public static Dictionary<int, MainCharacterClass> MainCharacterClasses = new Dictionary<int, MainCharacterClass>();
+		public static Dictionary<Race, Dictionary<int, MainCharacterClass>> MainCharacterClasses = new Dictionary<Race, Dictionary<int, MainCharacterClass>>();
 		public static Dictionary<int, CharacterClass> JobCharacterClasses = new Dictionary<int, CharacterClass>();
 
 		private static List<int> Requirements = new List<int>();
@@ -36,8 +44,34 @@ namespace Server.Custom.Class
 
 			XDocument Document = XDocument.Load(ConfigFilePath);
 
-			MainCharacterClasses = ReadMainClasses(Document.Root.Element("main"), 0)
+			XElement MainNode = Document.Root.Element("main");
+
+			Dictionary<int, MainCharacterClass> BaseMainCharacterClasses = ReadMainClasses(MainNode, 0)
 				.ToDictionary(MainCharacterClass => MainCharacterClass.ID);
+
+			Dictionary<Race, Dictionary<int, MainClassSpecialization>> Specializations = ReadSpecializations(MainNode);
+
+			foreach (Race Race in Race.AllRaces)
+			{
+				Dictionary<int, MainCharacterClass> RaceMainCharacterClasses = new Dictionary<int, MainCharacterClass>();
+				MainCharacterClasses[Race] = RaceMainCharacterClasses;
+
+				foreach (KeyValuePair<int, MainCharacterClass> BaseMainCharacterClass in BaseMainCharacterClasses)
+				{
+					int ID = BaseMainCharacterClass.Key;
+
+					MainClassSpecialization Specialization = new MainClassSpecialization();
+					if (Specializations.ContainsKey(Race))
+					{
+						if (Specializations[Race].ContainsKey(ID))
+						{
+							Specialization = Specializations[Race][ID];
+						}
+					}
+
+					RaceMainCharacterClasses[ID] = SpecializeMainCharacterClass(BaseMainCharacterClass.Value, Specialization);
+				}
+			}
 
 			JobCharacterClasses = Document.Root.Element("job")
 				.Element("classes")
@@ -54,10 +88,7 @@ namespace Server.Custom.Class
 				{
 					CharacterClass Base = ReadClassNode(ClassNode, Depth);
 
-					List<ArmorMaterialType> AllowedArmorMaterialTypes = ClassNode.Element("armors")
-					.Elements("armor")
-					.Select(ArmorNode => (ArmorMaterialType)Enum.Parse(typeof(ArmorMaterialType), ArmorNode.Value))
-					.ToList();
+					List<ArmorMaterialType> AllowedArmorMaterialTypes = ReadAllowedArmorMaterialTypes(ClassNode) ?? new List<ArmorMaterialType>();
 
 					List<MainCharacterClass> Classes = ReadMainClasses(ClassNode, Depth + 1);
 
@@ -77,24 +108,80 @@ namespace Server.Custom.Class
 				.ToList();
 		}
 
+		private static List<ArmorMaterialType> ReadAllowedArmorMaterialTypes(XElement Node)
+		{
+			XElement ArmorsNode = Node?.Element("armors");
+			if (ArmorsNode == null)
+			{
+				return null;
+			}
+
+			return ArmorsNode.Elements("armor")
+				.Select(ArmorNode => (ArmorMaterialType)Enum.Parse(typeof(ArmorMaterialType), ArmorNode.Value))
+				.ToList();
+		}
+
 		private static CharacterClass ReadClassNode(XElement Node, int Depth)
 		{
 			int ID = int.Parse(Node.Attribute("id")?.Value);
 			string Name = Node.Attribute("name")?.Value;
 
-			Dictionary<SkillName, double> SkillCaps = Node.Element("skills")
-				.Elements("skill")
-				.Select(SkillCap =>
-				{
-					SkillName SkillName = (SkillName)Enum.Parse(typeof(SkillName), SkillCap.Attribute("name")?.Value);
-
-					return new Tuple<SkillName, double>(SkillName, double.Parse(SkillCap.Value ?? "0"));
-				})
-				.ToDictionary(Entry => Entry.Item1, Entry => Entry.Item2);
+			Dictionary<SkillName, double> SkillCaps = ReadSkillCaps(Node) ?? new Dictionary<SkillName, double>();
 
 			bool Hidden = bool.Parse(Node.Attribute("hidden")?.Value ?? "false");
 
 			return new CharacterClass(ID, Name, SkillCaps, Depth, new List<int>(), Hidden);
+		}
+
+		private static Dictionary<SkillName, double> ReadSkillCaps(XElement Node)
+		{
+			XElement SkillsNode = Node?.Element("skills");
+			if (SkillsNode == null)
+			{
+				return null;
+			}
+
+			return SkillsNode.Elements("skill")
+				.ToDictionary(
+				SkillCap => (SkillName)Enum.Parse(typeof(SkillName), SkillCap.Attribute("name")?.Value),
+				SkillCap => double.Parse(SkillCap.Value ?? "0"));
+		}
+
+		private static MainCharacterClass SpecializeMainCharacterClass(MainCharacterClass BaseMainCharacterClass, MainClassSpecialization Specialization)
+		{
+			string Name = Specialization.Name ?? BaseMainCharacterClass.Name;
+			Dictionary<SkillName, double> SkillCaps = Specialization.SkillCaps ?? BaseMainCharacterClass.SkillCaps;
+			List<ArmorMaterialType> AllowedArmorMaterialTypes = Specialization.AllowedArmorMaterialTypes ?? BaseMainCharacterClass.AllowedArmorMaterialTypes;
+
+			return new MainCharacterClass(
+				BaseMainCharacterClass.ID,
+				Name,
+				SkillCaps,
+				BaseMainCharacterClass.Level,
+				BaseMainCharacterClass.Evolutions,
+				BaseMainCharacterClass.Hidden,
+				AllowedArmorMaterialTypes);
+		}
+
+		private static Dictionary<Race, Dictionary<int, MainClassSpecialization>> ReadSpecializations(XElement Node)
+		{
+			return Node.Element("specializations")
+				.Elements()
+				.ToDictionary(RaceNode => Race.Parse(RaceNode.Attribute("name").Value),
+				RaceNode =>
+				{
+					return RaceNode.Elements("specialization")
+					.ToDictionary(SpecializationNode => int.Parse(SpecializationNode.Attribute("id").Value),
+					SpecializationNode =>
+					{
+						return new MainClassSpecialization()
+						{
+							Name = SpecializationNode.Attribute("name").Value,
+							SkillCaps = ReadSkillCaps(SpecializationNode),
+							AllowedArmorMaterialTypes = ReadAllowedArmorMaterialTypes(SpecializationNode)
+						};
+					});
+				});
 		}
 
 		private static void LoadRequirements()
@@ -122,13 +209,16 @@ namespace Server.Custom.Class
 			}
 		}
 
-		public static MainCharacterClass GetMainCharacterClass(int ID)
+		public static MainCharacterClass GetMainCharacterClass(Race Race, int ID)
 		{
 			LoadClasses();
 
-			if (MainCharacterClasses.ContainsKey(ID))
+			if (MainCharacterClasses.ContainsKey(Race))
 			{
-				return MainCharacterClasses[ID];
+				if (MainCharacterClasses[Race].ContainsKey(ID))
+				{
+					return MainCharacterClasses[Race][ID];
+				}
 			}
 
 			return null;

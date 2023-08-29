@@ -36,7 +36,7 @@ namespace Server.Gumps
 			Dragable = true;
 			Resizable = false;
 
-			CurrentClass = CharacterClasses.GetMainCharacterClass(ClassIds[CurrentClassIndex]);
+			CurrentClass = CharacterClasses.GetMainCharacterClass(Target.Race, ClassIds[CurrentClassIndex]);
 
 			AddSection(x - 10, y, 300, 240, "Description");
 
@@ -66,7 +66,7 @@ namespace Server.Gumps
 
 			foreach (int EvolutionID in CurrentClass.Evolutions)
 			{
-				MainCharacterClass EvolutionClass = CharacterClasses.GetMainCharacterClass(EvolutionID);
+				MainCharacterClass EvolutionClass = CharacterClasses.GetMainCharacterClass(Target.Race,EvolutionID);
 
 				AddButtonHtml(x + 315, y + yLine * 20, 1000 + EvolutionClass.ID, EvolutionClass.Name, "#FFFFFF");
 

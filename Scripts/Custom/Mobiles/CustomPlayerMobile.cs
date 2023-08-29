@@ -79,7 +79,10 @@ namespace Server.Custom.Mobiles
 
 			foreach (var Skill in Skills)
 			{
-				double ClassCap = Math.Max(m_Class.GetSkillCap(Skill.SkillName), m_Job.GetSkillCap(Skill.SkillName));
+				double MainClassCap = m_Class != null ? m_Class.GetSkillCap(Skill.SkillName) : 0;
+				double JobClassCap = m_Job != null ? m_Job.GetSkillCap(Skill.SkillName) : 0;
+
+				double ClassCap = Math.Max(MainClassCap, JobClassCap);
 
 				Skill.Cap = Math.Min(Skill.Cap, Math.Min(LevelSkillCap, ClassCap));
 
@@ -124,8 +127,8 @@ namespace Server.Custom.Mobiles
 			switch (version)
 			{
 				case 0:
-					m_Class = CharacterClasses.GetMainCharacterClass(Reader.ReadInt());
-					m_Job = CharacterClasses.GetJobCharacterClass(Reader.ReadInt());
+					Class = CharacterClasses.GetMainCharacterClass(Race, Reader.ReadInt());
+					Job = CharacterClasses.GetJobCharacterClass(Reader.ReadInt());
 					PreciseExperience = Reader.ReadDouble();
 					LastExperienceGain = Reader.ReadDateTime();
 					ExperienceFatigue = Reader.ReadTimeSpan();

@@ -32,7 +32,7 @@ namespace Server.Gumps
 
 			int yLine = 0;
 
-			CharacterClasses.MainCharacterClasses.Values
+			CharacterClasses.MainCharacterClasses[Target.Race].Values
 				.Where(Class =>
 				{
 					return Class.Level == 0 && !Class.Hidden;
