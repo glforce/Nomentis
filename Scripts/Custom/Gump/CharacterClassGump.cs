@@ -75,7 +75,7 @@ namespace Server.Gumps
 
 			string SkillCaps = string.Join("\n",
 				CurrentClass.SkillCaps
-				.Select(SkillCap => string.Format("{0] - {1}", SkillCap.Key.ToString(), SkillCap.Value))
+				.Select(SkillCap => string.Format("{0} - {1}", SkillCap.Key.ToString(), SkillCap.Value))
 				.ToList());
 
 			AddSection(x - 10, y + 245, 605, 300, "Compétences", SkillCaps);
