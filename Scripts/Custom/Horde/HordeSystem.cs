@@ -90,6 +90,9 @@ namespace Server.Custom.Horde
 			   SaveFilePath,
 			   Writer =>
 			   {
+				   // Version
+				   Writer.Write(0);
+
 				   if (IsCurrentHordeActive())
 				   {
 					   Writer.Write(true);
@@ -97,7 +100,9 @@ namespace Server.Custom.Horde
 					   CurrentHorde.Serialize(Writer);
 				   }
 				   else
+				   {
 					   Writer.Write(false);
+				   } 
 			   });
 		}
 
@@ -107,6 +112,9 @@ namespace Server.Custom.Horde
 			   SaveFilePath,
 			   Reader =>
 			   {
+				   // Version
+				   Reader.ReadInt();
+
 				   if (Reader.ReadBool())
 				   {
 					   CurrentHorde = new Horde();
