@@ -22,12 +22,12 @@ namespace Server.Custom.Class
 
 		private static readonly string ConfigFilePath = Path.Combine("Config", "Classes.xml");
 
-		public static Dictionary<Race, Dictionary<int, MainCharacterClass>> MainCharacterClasses = new Dictionary<Race, Dictionary<int, MainCharacterClass>>();
+		public static Dictionary<int, Dictionary<int, MainCharacterClass>> MainCharacterClasses = new Dictionary<int, Dictionary<int, MainCharacterClass>>();
 		public static Dictionary<int, CharacterClass> JobCharacterClasses = new Dictionary<int, CharacterClass>();
 
 		private static List<int> Requirements = new List<int>();
 
-		public static void Initialize()
+		public static void Configure()
 		{
 			LoadClasses();
 			LoadRequirements();
@@ -37,11 +37,6 @@ namespace Server.Custom.Class
 
 		private static void LoadClasses()
 		{
-			if (MainCharacterClasses.Count > 0 || JobCharacterClasses.Count > 0)
-			{
-				return;
-			}
-
 			XDocument Document = XDocument.Load(ConfigFilePath);
 
 			XElement MainNode = Document.Root.Element("main");
@@ -49,23 +44,23 @@ namespace Server.Custom.Class
 			Dictionary<int, MainCharacterClass> BaseMainCharacterClasses = ReadMainClasses(MainNode, 0)
 				.ToDictionary(MainCharacterClass => MainCharacterClass.ID);
 
-			Dictionary<Race, Dictionary<int, MainClassSpecialization>> Specializations = ReadSpecializations(MainNode);
+			Dictionary<int, Dictionary<int, MainClassSpecialization>> Specializations = ReadSpecializations(MainNode);
 
-			foreach (Race Race in Race.AllRaces)
+			for (int RaceID = 0; RaceID < 3; RaceID++)
 			{
 				Dictionary<int, MainCharacterClass> RaceMainCharacterClasses = new Dictionary<int, MainCharacterClass>();
-				MainCharacterClasses[Race] = RaceMainCharacterClasses;
+				MainCharacterClasses[RaceID] = RaceMainCharacterClasses;
 
 				foreach (KeyValuePair<int, MainCharacterClass> BaseMainCharacterClass in BaseMainCharacterClasses)
 				{
 					int ID = BaseMainCharacterClass.Key;
 
 					MainClassSpecialization Specialization = new MainClassSpecialization();
-					if (Specializations.ContainsKey(Race))
+					if (Specializations.ContainsKey(RaceID))
 					{
-						if (Specializations[Race].ContainsKey(ID))
+						if (Specializations[RaceID].ContainsKey(ID))
 						{
-							Specialization = Specializations[Race][ID];
+							Specialization = Specializations[RaceID][ID];
 						}
 					}
 
@@ -163,11 +158,11 @@ namespace Server.Custom.Class
 				AllowedArmorMaterialTypes);
 		}
 
-		private static Dictionary<Race, Dictionary<int, MainClassSpecialization>> ReadSpecializations(XElement Node)
+		private static Dictionary<int, Dictionary<int, MainClassSpecialization>> ReadSpecializations(XElement Node)
 		{
 			return Node.Element("specializations")
 				.Elements()
-				.ToDictionary(RaceNode => Race.Parse(RaceNode.Attribute("name").Value),
+				.ToDictionary(RaceNode => int.Parse(RaceNode.Attribute("raceid").Value),
 				RaceNode =>
 				{
 					return RaceNode.Elements("specialization")
@@ -209,15 +204,13 @@ namespace Server.Custom.Class
 			}
 		}
 
-		public static MainCharacterClass GetMainCharacterClass(Race Race, int ID)
+		public static MainCharacterClass GetMainCharacterClass(int RaceID, int ID)
 		{
-			LoadClasses();
-
-			if (MainCharacterClasses.ContainsKey(Race))
+			if (MainCharacterClasses.ContainsKey(RaceID))
 			{
-				if (MainCharacterClasses[Race].ContainsKey(ID))
+				if (MainCharacterClasses[RaceID].ContainsKey(ID))
 				{
-					return MainCharacterClasses[Race][ID];
+					return MainCharacterClasses[RaceID][ID];
 				}
 			}
 
@@ -226,8 +219,6 @@ namespace Server.Custom.Class
 
 		public static CharacterClass GetJobCharacterClass(int ID)
 		{
-			LoadClasses();
-
 			if (JobCharacterClasses.ContainsKey(ID))
 			{
 				return JobCharacterClasses[ID];

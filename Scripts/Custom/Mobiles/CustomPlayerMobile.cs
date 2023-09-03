@@ -127,7 +127,7 @@ namespace Server.Custom.Mobiles
 			switch (version)
 			{
 				case 0:
-					Class = CharacterClasses.GetMainCharacterClass(Race, Reader.ReadInt());
+					Class = CharacterClasses.GetMainCharacterClass(Race.RaceID, Reader.ReadInt());
 					Job = CharacterClasses.GetJobCharacterClass(Reader.ReadInt());
 					PreciseExperience = Reader.ReadDouble();
 					LastExperienceGain = Reader.ReadDateTime();

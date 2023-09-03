@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<quests>
+	<quest name="test">
+		<step name="start">
+			<locked name="lockedcondition">true</locked>
+			<item name="itemcondition">1234</item>
+			<flag name="flagcondition"/>
+		</step>
+	</quest>
+</quests>

@@ -29,7 +29,7 @@ namespace Server.Custom.Evolution
 
 		public static List<LevelSpec> LevelSpecs = new List<LevelSpec>();
 
-		public static void Initialize()
+		public static void Configure()
 		{
 			LoadExperienceTable();
 
