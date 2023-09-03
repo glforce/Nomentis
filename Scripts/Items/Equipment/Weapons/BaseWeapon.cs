@@ -2493,7 +2493,7 @@ namespace Server.Items
             int damage = Utility.Dice(dice, sides, bonus) * 100;
             int damageBonus = 0;
 
-            int inscribeSkill = attacker.Skills[SkillName.EvalInt].Fixed;
+            int inscribeSkill = attacker.Skills[SkillName.Inscribe].Fixed;
             int inscribeBonus = (inscribeSkill + (1000 * (inscribeSkill / 1000))) / 200;
 
             damageBonus += inscribeBonus;
@@ -3110,10 +3110,10 @@ namespace Server.Items
                 attacker.CheckSkill(SkillName.Anatomy, 0.0, attacker.Skills[SkillName.Anatomy].Cap);
                 // Passively check Anatomy for gain
 
-       /*         if (Type == WeaponType.Axe)
+                if (Type == WeaponType.Axe)
                 {
                     attacker.CheckSkill(SkillName.Lumberjacking, 0.0, 100.0); // Passively check Lumberjacking for gain
-                }*/
+                }
             }
 
             #region Physical bonuses
@@ -3124,12 +3124,12 @@ namespace Server.Items
             double strengthBonus = GetBonus(attacker.Str, 0.300, 100.0, 5.00);
             double anatomyBonus = GetBonus(attacker.Skills[SkillName.Anatomy].Value, 0.500, 100.0, 5.00);
             double tacticsBonus = GetBonus(attacker.Skills[SkillName.Tactics].Value, 0.625, 100.0, 6.25);
-     //       double lumberBonus = GetBonus(attacker.Skills[SkillName.Lumberjacking].Value, 0.200, 100.0, 10.00);
+            double lumberBonus = GetBonus(attacker.Skills[SkillName.Lumberjacking].Value, 0.200, 100.0, 10.00);
 
-   /*         if (Type != WeaponType.Axe)
+            if (Type != WeaponType.Axe)
             {
                 lumberBonus = 0.0;
-            }*/
+            }
             #endregion
 
             #region Modifiers
@@ -3145,7 +3145,7 @@ namespace Server.Items
             }
             #endregion
 
-            double totalBonus = strengthBonus + anatomyBonus + tacticsBonus /*+ lumberBonus*/ +
+            double totalBonus = strengthBonus + anatomyBonus + tacticsBonus + lumberBonus +
                                 (damageBonus / 100.0);
 
             return damage + (int)(damage * totalBonus);

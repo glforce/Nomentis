@@ -48,28 +48,8 @@ namespace Server.Gumps
 			AddHtmlText(x + 125, y + yLine * 20, 150, Target.Race.Name);
 			yLine++;
 
-			AddHtmlText(x + 10, y + yLine * 20, 100, "Classe:");
-
-			if (From.AccessLevel >= AccessLevel.GameMaster)
-			{
-				AddButtonHtml(X + 150 - 18, y + yLine * 20, 1, Target.Class.Name, "#FFFFFF");
-			}
-			else
-			{
-				AddHtmlText(x + 125, y + yLine * 20, 150, Target.Class.Name);
-			}
-			yLine++;
-
-			AddHtmlText(x + 10, y + yLine * 20, 100, "Metier:");
-			AddHtmlText(x + 125, y + yLine * 20, 150, Target.Job.Name);
-			yLine++;
-
 			AddHtmlText(x + 10, y + yLine * 20, 100, "Niveau:");
 			AddHtmlText(x + 125, y + yLine * 20, 150, ExperienceSystem.GetLevel(Target).ToString());
-			yLine++;
-
-			AddHtmlText(x + 10, y + yLine * 20, 100, "Armure:");
-			AddHtmlText(x + 125, y + yLine * 20, 150, string.Join(", ", Target.Class.AllowedArmorMaterialTypes));
 			yLine++;
 
 			AddSection(x - 10, y + 317, 250, 135, "Expériences");
@@ -85,14 +65,6 @@ namespace Server.Gumps
 
 			AddHtmlText(x + 10, y + 630, 150, "Soif :");
 			AddLabel(x + 130, y + 630, 150, Target.Thirst * 5 + " / 100".ToString());
-		}
-
-		public override void OnResponse(NetState Sender, RelayInfo Info)
-		{
-			if (Info.ButtonID == 1)
-			{
-				From.SendGump(new CharacterClassGump(From, Target, new List<int> { Target.Class.ID }, 0));
-			}
 		}
 	}
 }

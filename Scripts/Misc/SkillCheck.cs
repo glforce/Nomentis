@@ -1,4 +1,5 @@
 #region References
+using Server.Custom.Mobiles;
 using Server.Engines.Quests;
 using Server.Items;
 using Server.Mobiles;
@@ -310,6 +311,12 @@ namespace Server.Misc
 
         private static bool AllowGain(Mobile from, Skill skill, object obj)
         {
+			// Prevent skill gain
+			if (from is CustomPlayerMobile)
+			{
+				return false;
+			}
+
             if (Engines.VvV.ViceVsVirtueSystem.InSkillLoss(from)) //Changed some time between the introduction of AoS and SE.
                 return false;
 

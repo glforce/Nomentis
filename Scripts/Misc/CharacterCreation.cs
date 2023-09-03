@@ -1,8 +1,8 @@
 #region References
 using Server.Accounting;
-using Server.Custom.Class;
 using Server.Custom.Mobiles;
 using Server.Items;
+using Server.Mobiles;
 using Server.Network;
 using System;
 #endregion
@@ -177,7 +177,7 @@ namespace Server.Misc
 
             bool young = false;
 
-            if (newChar is CustomPlayerMobile pm)
+            if (newChar is PlayerMobile pm)
             {
                 pm.AutoRenewInsurance = true;
 
@@ -193,9 +193,6 @@ namespace Server.Misc
 
                 if (pm.IsPlayer() && pm.Account.Young && !Siege.SiegeShard)
                     young = pm.Young = true;
-
-                pm.Class = CharacterClasses.GetMainCharacterClass(pm.Race.RaceID, 0);
-                pm.Job = CharacterClasses.GetJobCharacterClass(0);
             }
 
             SetName(newChar, args.Name);

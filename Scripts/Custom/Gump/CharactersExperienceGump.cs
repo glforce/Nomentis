@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Server.Accounting;
 using System.Linq;
 using Server.Custom.Mobiles;
+using Server.Custom.Evolution;
 
 namespace Server.Gumps
 {
@@ -54,6 +55,7 @@ namespace Server.Gumps
 
 			AddHtmlTexteColored(x + 10, y + 20 * 20, 300, "Personnage", "#ffffff");
 			AddHtmlTexteColored(x + 300, y + 20 * 20, 300, "Experience", "#ffffff");
+			AddHtmlTexteColored(x + 580, y + 20 * 20, 300, "Niveau", "#ffffff");
 
 			int Line = 0;
 
@@ -63,6 +65,7 @@ namespace Server.Gumps
 				{
 					AddHtmlTexteColored(x + 10, y + 40 + Line * 20, 300, PlayerCharacter.Name, "#ffffff");
 					AddHtmlTexteColored(x + 300, y + 40 + Line * 20, 300, PlayerCharacter.Experience.ToString(), "#ffffff");
+					AddHtmlTexteColored(x + 580, y + 40 + Line * 20, 300, ExperienceSystem.GetLevel(PlayerCharacter).ToString(), "#ffffff");
 					Line++;
 				});
 

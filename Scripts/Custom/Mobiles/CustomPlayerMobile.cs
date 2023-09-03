@@ -1,38 +1,13 @@
 using System;
-using Server.Custom.Class;
 using Server.Custom.Evolution;
-using Server.Items;
 using Server.Mobiles;
+using Server.Network;
 
 namespace Server.Custom.Mobiles
 {
 	public partial class CustomPlayerMobile : PlayerMobile
 	{
-		private MainCharacterClass m_Class;
-		private CharacterClass m_Job;
 		private double PreciseExperience;
-
-		[CommandProperty(AccessLevel.GameMaster)]
-		public MainCharacterClass Class
-		{
-			get => m_Class;
-			set
-			{
-				m_Class = value;
-				AdjustSkillCaps();
-			}
-		}
-
-		[CommandProperty(AccessLevel.GameMaster)]
-		public CharacterClass Job
-		{
-			get => m_Job;
-			set
-			{
-				m_Job = value;
-				AdjustSkillCaps();
-			}
-		}
 
 		[CommandProperty(AccessLevel.GameMaster)]
 		public double Experience
@@ -49,6 +24,9 @@ namespace Server.Custom.Mobiles
 		[CommandProperty(AccessLevel.Administrator)]
 		public TimeSpan ExperienceFatigue { get; set; }
 
+		[CommandProperty(AccessLevel.Administrator)]
+		public int SkillPoints { get; set; } = 1;
+
 		public CustomPlayerMobile()
 		{
 		}
@@ -58,33 +36,13 @@ namespace Server.Custom.Mobiles
 		{
 		}
 
-		public override bool OnEquip(Item Item)
-		{
-			if (AccessLevel > AccessLevel.Player)
-				return true;
-
-			if (Item is BaseArmor Armor)
-				if (!m_Class.IsArmorAllowed(Armor))
-				{
-					SendMessage("Type d'armure requis: {0}.", Armor.MaterialType.ToString());
-					return false;
-				}
-
-			return base.OnEquip(Item);
-		}
-
 		public void AdjustSkillCaps()
 		{
 			var LevelSkillCap = ExperienceSystem.GetLevelSpec(this).SkillCap;
 
 			foreach (var Skill in Skills)
 			{
-				double MainClassCap = m_Class != null ? m_Class.GetSkillCap(Skill.SkillName) : 0;
-				double JobClassCap = m_Job != null ? m_Job.GetSkillCap(Skill.SkillName) : 0;
-
-				double ClassCap = Math.Max(MainClassCap, JobClassCap);
-
-				Skill.Cap = Math.Min(Skill.Cap, Math.Min(LevelSkillCap, ClassCap));
+				Skill.Cap = LevelSkillCap;
 
 				Skill.Base = Math.Min(Skill.Base, Skill.Cap);
 			}
@@ -103,49 +61,70 @@ namespace Server.Custom.Mobiles
 			if (NewLevel > PreviousLevel)
 			{
 				AdjustSkillCaps();
+				GiveSkillPoints(NewLevel - PreviousLevel);
 				SendMessage("Vous êtes maintenant au niveau {0}!", NewLevel);
-
-				if (CharacterClasses.IsRequiredLevel(m_Class.Level + 1, NewLevel))
-					SendMessage("Vous avez maintenant accès à une nouvelle classe!");
 			}
 
 			return Experience;
 		}
 
-		public bool CanEvolveTo(MainCharacterClass Class)
+		public void GiveSkillPoints(int LevelGap)
 		{
-			return m_Class.Evolutions.Contains(Class.ID)
-			   && CharacterClasses.IsRequiredLevel(Class.Level, ExperienceSystem.GetLevel(this));
+			SkillPoints += LevelGap * ExperienceSystem.SkillPointsPerLevel;
+		}
+
+		public bool CanLearnSkill(SkillName SkillName)
+		{
+			if (SkillPoints <= 0)
+			{
+				return false;
+			}
+
+			Skill Skill = Skills[SkillName];
+
+			return Skill.Base < Skill.Cap;
+		}
+
+		public bool LearnSkill(SkillName SkillName)
+		{
+			if (!CanLearnSkill(SkillName))
+			{
+				return false;
+			}
+
+			SkillPoints--;
+
+			Skill Skill = Skills[SkillName];
+
+			Skill.Base = Skill.Cap;
+
+			return true;
 		}
 
 		public override void Deserialize(GenericReader Reader)
 		{
 			base.Deserialize(Reader);
 
-			var version = Reader.ReadInt();
+			// Version
+			Reader.ReadInt();
 
-			switch (version)
-			{
-				case 0:
-					Class = CharacterClasses.GetMainCharacterClass(Race.RaceID, Reader.ReadInt());
-					Job = CharacterClasses.GetJobCharacterClass(Reader.ReadInt());
-					PreciseExperience = Reader.ReadDouble();
-					LastExperienceGain = Reader.ReadDateTime();
-					ExperienceFatigue = Reader.ReadTimeSpan();
-					break;
-			}
+			PreciseExperience = Reader.ReadDouble();
+			LastExperienceGain = Reader.ReadDateTime();
+			ExperienceFatigue = Reader.ReadTimeSpan();
+			SkillPoints = Reader.ReadInt();
 		}
 
-		public override void Serialize(GenericWriter writer)
+		public override void Serialize(GenericWriter Writer)
 		{
-			base.Serialize(writer);
+			base.Serialize(Writer);
 
-			writer.Write(0); // version
-			writer.Write(m_Class.ID);
-			writer.Write(m_Job.ID);
-			writer.Write(PreciseExperience);
-			writer.Write(LastExperienceGain);
-			writer.Write(ExperienceFatigue);
+			// Version
+			Writer.Write(0);
+
+			Writer.Write(PreciseExperience);
+			Writer.Write(LastExperienceGain);
+			Writer.Write(ExperienceFatigue);
+			Writer.Write(SkillPoints);
 		}
 	}
 }

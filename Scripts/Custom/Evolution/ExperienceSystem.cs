@@ -18,6 +18,7 @@ namespace Server.Custom.Evolution
 		{
 			public int RequiredExperience { get; set; }
 			public double SkillCap { get; set; }
+			public int GivenSkillPoints { get; set; }
 		}
 
 		private static readonly string ConfigFilePath = Path.Combine("Config", "ExperienceTable.xml");
@@ -26,6 +27,8 @@ namespace Server.Custom.Evolution
 
 		private static readonly TimeSpan MAX_OPTIMAL_EXPERIENCE_GAIN_SPAN = Config.Get("ExperienceSystem.MaxOptimalExperienceGainSpan", TimeSpan.FromHours(1));
 		private static readonly double EXPERIENCE_GAIN_RATE_BY_MINUTE = Config.Get("ExperienceSystem.ExperienceGainRateByMinute", 0.01);
+
+		public static readonly int SkillPointsPerLevel = Config.Get("Experience.SkillPointsPerLevel", 1);
 
 		public static List<LevelSpec> LevelSpecs = new List<LevelSpec>();
 
@@ -39,6 +42,7 @@ namespace Server.Custom.Evolution
 			CommandSystem.Register("CharactersExperience", AccessLevel.GameMaster, ShowCharactersExperience);
 			CommandSystem.Register("TargetExperience", AccessLevel.GameMaster, ShowTargetExperience);
 			CommandSystem.Register("GiveExperience", AccessLevel.GameMaster, GiveExperience);
+			CommandSystem.Register("GiveLevels", AccessLevel.GameMaster, GiveLevels);
 
 			Timer.DelayCall(EXPERIENCE_GAIN_FREQUENCY, EXPERIENCE_GAIN_FREQUENCY, GainTimedExperience);
 		}
@@ -53,12 +57,14 @@ namespace Server.Custom.Evolution
 					return new LevelSpec
 					{
 						RequiredExperience = int.Parse(Node.Attribute("req")?.Value ?? "0"),
-						SkillCap = double.Parse(Node.Attribute("skillcap")?.Value ?? "0")
+						SkillCap = double.Parse(Node.Attribute("skillcap")?.Value ?? "0"),
+						GivenSkillPoints = int.Parse(Node.Attribute("gain")?.Value ?? "0")
 					};
 				})
 				.ToList();
 		}
 
+		[Usage("Experience")]
 		private static void ShowPlayerExperience(CommandEventArgs e)
 		{
 			if (e.Mobile is CustomPlayerMobile Mobile)
@@ -67,6 +73,7 @@ namespace Server.Custom.Evolution
 			}
 		}
 
+		[Usage("TableNiveaux")]
 		private static void OpenExperienceTable(CommandEventArgs e)
 		{
 			if (e.Mobile is CustomPlayerMobile Mobile)
@@ -75,6 +82,7 @@ namespace Server.Custom.Evolution
 			}
 		}
 
+		[Usage("CharactersExperience")]
 		private static void ShowCharactersExperience(CommandEventArgs e)
 		{
 			if (e.Mobile is PlayerMobile PlayerMobile)
@@ -83,11 +91,13 @@ namespace Server.Custom.Evolution
 			}
 		}
 
+		[Usage("TargetExperience")]
 		private static void ShowTargetExperience(CommandEventArgs e)
 		{
 			e.Mobile.Target = new ShowExperienceTarget();
 		}
 
+		[Usage("GiveExperience")]
 		private static void GiveExperience(CommandEventArgs e)
 		{
 			if (e.Arguments.Length > 0)
@@ -96,6 +106,14 @@ namespace Server.Custom.Evolution
 
 				e.Mobile.Target = new GiveExperienceTarget(Amount);
 			}
+		}
+
+		[Usage("GiveLevels")]
+		private static void GiveLevels(CommandEventArgs e)
+		{
+			int LevelsToGive = int.Parse(e.Arguments.ElementAtOrDefault(0) ?? "1");
+
+
 		}
 
 		private static void GainTimedExperience()
@@ -144,7 +162,17 @@ namespace Server.Custom.Evolution
 
 		public static LevelSpec GetLevelSpec(CustomPlayerMobile PlayerMobile)
 		{
-			return LevelSpecs[GetLevel(PlayerMobile)];
+			return GetLevelSpec(GetLevel(PlayerMobile)).Value;
+		}
+
+		public static LevelSpec? GetLevelSpec(int Level)
+		{
+			if (Level < 0 || Level >= LevelSpecs.Count)
+			{
+				return null;
+			}
+
+			return LevelSpecs[Level];
 		}
 
 		private class ShowExperienceTarget : Target
@@ -180,6 +208,30 @@ namespace Server.Custom.Evolution
 					TargetPlayer.AddExperience(Amount);
 
 					From.SendMessage("Le personnage {0} a reçu {1} point(s) d'expérience. Total: {2}", TargetPlayer.Name, Amount, TargetPlayer.Experience);
+				}
+			}
+		}
+
+		private class GiveLevelsTarget : Target
+		{
+			private int Levels;
+
+			public GiveLevelsTarget(int Levels)
+				: base(15, false, TargetFlags.None)
+			{
+				this.Levels = Levels;
+			}
+
+			protected override void OnTarget(Mobile From, object Target)
+			{
+				if (Target is CustomPlayerMobile TargetPlayer)
+				{
+					int ExpectedLevel = Math.Min(GetLevel(TargetPlayer) + Levels, LevelSpecs.Count - 1);
+					double RequiredExperience = GetLevelSpec(ExpectedLevel).Value.RequiredExperience - TargetPlayer.Experience;
+
+					TargetPlayer.AddExperience(RequiredExperience);
+
+					From.SendMessage("Le personnage {0} a reçu {1} point(s) d'expérience pour atteindre le niveau {2}", TargetPlayer.Name, RequiredExperience, ExpectedLevel);
 				}
 			}
 		}
