@@ -34,22 +34,30 @@ namespace Server.Custom.Horde
 					{
 						var Point = new Point2D(x, Rect.Start.Y - 1);
 						if (!IsInSafeZone(Point))
+						{
 							PerimeterSet.Add(Point);
+						}
 
 						Point = new Point2D(x, Rect.End.Y + 1);
 						if (!IsInSafeZone(Point))
+						{
 							PerimeterSet.Add(Point);
+						}
 					}
 
 					for (var y = Rect.Start.Y - 1; y <= Rect.End.Y + 1; y++)
 					{
 						var Point = new Point2D(Rect.Start.X - 1, y);
 						if (!IsInSafeZone(Point))
+						{
 							PerimeterSet.Add(Point);
+						}
 
 						Point = new Point2D(Rect.End.X + 1, y);
 						if (!IsInSafeZone(Point))
+						{
 							PerimeterSet.Add(Point);
+						}
 					}
 				}
 
@@ -135,7 +143,9 @@ namespace Server.Custom.Horde
 			var SafeZone = GetSafeZone(Map, Location);
 
 			if (SafeZone == null)
+			{
 				return Location;
+			}
 
 			var PerimeterLocation = SafeZone.Value.GetLocationOnPerimeter();
 
@@ -154,11 +164,17 @@ namespace Server.Custom.Horde
 		private static SafeZone? GetSafeZone(Map Map, Point2D Location)
 		{
 			if (!Zones.ContainsKey(Map))
+			{
 				return null;
+			}
 
-			return Zones[Map].Where(Zone => Zone.IsInSafeZone(Location)).Select(Zone => (SafeZone?)Zone).FirstOrDefault();
+			return Zones[Map]
+				.Where(Zone => Zone.IsInSafeZone(Location))
+				.Select(Zone => (SafeZone?)Zone)
+				.FirstOrDefault();
 		}
 
+		[Usage("AddSafeZone")]
 		private static void AddSafeZone(CommandEventArgs e)
 		{
 			BoundingBoxPicker.Begin(e.Mobile, OnSafeZonePicked, null);
@@ -166,8 +182,6 @@ namespace Server.Custom.Horde
 
 		private static void OnSafeZonePicked(Mobile From, Map Map, Point3D Start, Point3D End, object State)
 		{
-			var SafeZone = new Rectangle2D(Start.X, Start.Y, End.X, End.Y);
-
 			var XmlDocument = new XmlDocument();
 			XmlDocument.Load(ConfigFilePath);
 

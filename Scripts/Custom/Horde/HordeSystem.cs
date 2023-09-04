@@ -271,22 +271,22 @@ namespace Server.Custom.Horde
 			public void Start()
 			{
 				StartTime = DateTime.Now;
-				EndTime = StartTime.Add(Duration);
-
-				EventSink.Login += OnPlayerLogin;
-
-				Trigger();
+				Resume();
 			}
 
 			public void Resume()
 			{
 				EndTime = DateTime.Now.Add(Duration);
 
+				EventSink.Login += OnPlayerLogin;
+
 				Trigger();
 			}
 
 			public void End()
 			{
+				EventSink.Login -= OnPlayerLogin;
+
 				Timer?.Stop();
 
 				DestroySpawnedCreatures();
