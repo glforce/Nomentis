@@ -27,6 +27,9 @@ namespace Server.Custom.Mobiles
 		[CommandProperty(AccessLevel.Administrator)]
 		public int SkillPoints { get; set; } = 1;
 
+		[CommandProperty(AccessLevel.Administrator)]
+		public DateTime HordeInvulnerabilityStart { get; set; }
+
 		public CustomPlayerMobile()
 		{
 		}

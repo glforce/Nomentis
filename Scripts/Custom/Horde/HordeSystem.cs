@@ -7,6 +7,7 @@ using Server.Mobiles;
 using Server.Network;
 using Server.Gumps;
 using System.Xml.Linq;
+using Server.Custom.Mobiles;
 
 namespace Server.Custom.Horde
 {
@@ -74,11 +75,13 @@ namespace Server.Custom.Horde
 		{
 			var SpawnedTypes = new List<Tuple<Type, int>>();
 
-			foreach (var Node in HordeNode.Descendants())
+			foreach (var Node in HordeNode.Elements("type"))
 			{
 				var Type = SpawnerType.GetType(Node.Attribute("name").Value);
 				if (Type != null && Type.IsSubclassOf(typeof(BaseCreature)))
+				{
 					SpawnedTypes.Add(new Tuple<Type, int>(Type, int.Parse(Node.Attribute("weight").Value)));
+				}
 			}
 
 			return SpawnedTypes;
@@ -102,7 +105,7 @@ namespace Server.Custom.Horde
 				   else
 				   {
 					   Writer.Write(false);
-				   } 
+				   }
 			   });
 		}
 
@@ -147,26 +150,34 @@ namespace Server.Custom.Horde
 			var PresetName = e.Arguments.ElementAtOrDefault(0) ?? "default";
 			HordePreset Preset;
 			if (HordePresets.TryGetValue(PresetName, out Preset))
+			{
 				AskForConfirmation(PlayerMobile, string.Format("Vous allez lancer la horde {0}. Êtes-vous sûr?", PresetName), () =>
 				{
 					CurrentHorde = new Horde(Preset);
 					CurrentHorde.Start();
 				});
+			}
 			else
+			{
 				PlayerMobile.SendMessage("Could not find horde preset named {0}", PresetName);
+			}
 		}
 
 		[Usage("EndHorde")]
 		private static void EndHorde(CommandEventArgs e)
 		{
 			if (CurrentHorde?.IsActive() == true)
+			{
 				AskForConfirmation(e.Mobile as PlayerMobile, "Vous allez interrompre la horde en cours. Êtes-vous sûr?", () =>
 				{
 					CurrentHorde?.End();
 					CurrentHorde = null;
 				});
+			}
 			else
+			{
 				(e.Mobile as PlayerMobile).SendMessage("No horde in progress.");
+			}
 		}
 
 		[Usage("HordePresets")]
@@ -186,7 +197,9 @@ namespace Server.Custom.Horde
 		{
 			private static readonly int SpawnRangeMin = Config.Get("Horde.SpawnRangeMin", 0);
 			private static readonly int SpawnRangeMax = Config.Get("Horde.SpawnRangeMax", 10);
+			private static readonly TimeSpan InvulnerabilityWindow = Config.Get("Horde.InvulnerabilityWindow", TimeSpan.Zero);
 
+			private TimeSpan Duration;
 			private int WaveCount = 0;
 			private TimeSpan DelayBetweenWaves;
 			private List<Type> SpawnedTypes;
@@ -195,7 +208,7 @@ namespace Server.Custom.Horde
 			private int WarningCount = 0;
 			private int MaxWarning = 0;
 
-			private DateTime StartTime;
+			private DateTime StartTime = DateTime.MinValue;
 			private DateTime EndTime;
 
 			private Timer Timer = null;
@@ -222,11 +235,15 @@ namespace Server.Custom.Horde
 				var SpawnedTypes = new List<Type>();
 
 				if (WeightedList.Count == 0)
+				{
 					SpawnedTypes.Add(typeof(CorruptedHorror));
+				}
 				else
-					foreach (var Entry in WeightedList)
-						for (var i = 0; i < Entry.Item2; i++)
-							SpawnedTypes.Add(Entry.Item1);
+				{
+					SpawnedTypes.AddRange(
+						WeightedList.SelectMany(Entry => Enumerable.Repeat(Entry.Item1, Entry.Item2))
+					);
+				}
 
 				return SpawnedTypes;
 			}
@@ -240,6 +257,7 @@ namespace Server.Custom.Horde
 				TimeSpan WarningDelay,
 				int WarningCount)
 			{
+				this.Duration = Duration;
 				this.WaveCount = WaveCount;
 				this.DelayBetweenWaves = DelayBetweenWaves;
 				this.SpawnedTypes = SpawnedTypes;
@@ -248,18 +266,22 @@ namespace Server.Custom.Horde
 				this.WarningCount = WarningCount;
 
 				MaxWarning = WarningCount;
-
-				StartTime = DateTime.Now;
-				EndTime = StartTime.Add(Duration);
 			}
 
 			public void Start()
 			{
+				StartTime = DateTime.Now;
+				EndTime = StartTime.Add(Duration);
+
+				EventSink.Login += OnPlayerLogin;
+
 				Trigger();
 			}
 
 			public void Resume()
 			{
+				EndTime = DateTime.Now.Add(Duration);
+
 				Trigger();
 			}
 
@@ -274,7 +296,18 @@ namespace Server.Custom.Horde
 
 			public bool IsActive()
 			{
-				return WaveCount > 0 && DateTime.Now < EndTime;
+				return WaveCount > 0 && DateTime.Now < EndTime && StartTime != DateTime.MinValue;
+			}
+
+			private void OnPlayerLogin(LoginEventArgs e)
+			{
+				if (e.Mobile is CustomPlayerMobile PlayerMobile)
+				{
+					if (PlayerMobile.HordeInvulnerabilityStart < StartTime)
+					{
+						PlayerMobile.HordeInvulnerabilityStart = DateTime.Now;
+					}
+				}
 			}
 
 			private void Trigger()
@@ -304,22 +337,32 @@ namespace Server.Custom.Horde
 					Timer = Timer.DelayCall(DelayForNextWave, Trigger);
 				}
 				else
+				{
 					End();
+				}
 			}
 
 			private void SpawnCreatures()
 			{
 				if (SpawnedCreatures.Count(Creature => Creature.Alive) >= MaxAliveCreatures)
+				{
 					return;
+				}
 
-				foreach (var Instance in NetState.Instances)
-					if (Instance.Mobile is PlayerMobile)
+				DateTime Now = DateTime.Now;
+
+				NetState.Instances
+					.Select(Instance => Instance.Mobile)
+					.Where(Mobile => Mobile is CustomPlayerMobile)
+					.Where(Mobile => (Now - ((CustomPlayerMobile)Mobile).HordeInvulnerabilityStart) > InvulnerabilityWindow)
+					.ToList()
+					.ForEach(Mobile =>
 					{
-						var Map = Instance.Mobile.Map;
+						var Map = Mobile.Map;
 
 						var Creature = Activator.CreateInstance(SpawnedTypes[Utility.Random(SpawnedTypes.Count)]) as BaseCreature;
 
-						var SpawnLocation = SafeZones.GetLocationOutsideOfSafeZone(Instance.Mobile, SpawnRangeMin, SpawnRangeMax);
+						var SpawnLocation = SafeZones.GetLocationOutsideOfSafeZone(Mobile, SpawnRangeMin, SpawnRangeMax);
 						var ValidSpawnLocation = Map.GetSpawnPosition(new Point3D(SpawnLocation.X, SpawnLocation.Y, Map.GetAverageZ(SpawnLocation.X, SpawnLocation.Y)), SpawnRangeMin);
 
 						if (!SafeZones.IsInSafeZone(Map, ValidSpawnLocation))
@@ -329,14 +372,16 @@ namespace Server.Custom.Horde
 							SpawnedCreatures.Add(Creature);
 						}
 						else
+						{
 							// Fail-safe in case the valid spawn position was in another safe zone
 							Creature.Delete();
-					}
+						}
+					});
 			}
 
 			private void DestroySpawnedCreatures()
 			{
-				foreach (var Creature in SpawnedCreatures)
+				foreach (BaseCreature Creature in SpawnedCreatures)
 				{
 					World.RemoveMobile(Creature);
 					Creature.Delete();
@@ -347,12 +392,15 @@ namespace Server.Custom.Horde
 
 			public virtual void Serialize(GenericWriter Writer)
 			{
+				Writer.Write(StartTime);
 				Writer.Write(EndTime - DateTime.Now);
 				Writer.Write(WaveCount);
 				Writer.Write(DelayBetweenWaves);
 				Writer.Write(SpawnedTypes.Count);
 				foreach (var Type in SpawnedTypes)
+				{
 					Writer.WriteObjectType(Type);
+				}
 
 				Writer.Write(MaxAliveCreatures);
 				Writer.Write(WarningDelay);
@@ -360,12 +408,18 @@ namespace Server.Custom.Horde
 
 				Writer.Write(SpawnedCreatures.Count);
 				foreach (var Creature in SpawnedCreatures)
+				{
 					if (!Creature.Deleted)
+					{
 						Writer.Write(Creature.Serial);
+					}
+				}
 			}
 
 			public virtual void Deserialize(GenericReader Reader)
 			{
+				StartTime = Reader.ReadDateTime();
+
 				Setup(
 					Reader.ReadTimeSpan(),
 					Reader.ReadInt(),
@@ -380,7 +434,9 @@ namespace Server.Custom.Horde
 				{
 					var CreatureMobile = World.FindMobile(Reader.ReadInt());
 					if (CreatureMobile != null && CreatureMobile is BaseCreature && CreatureMobile.Alive)
+					{
 						SpawnedCreatures.Add(CreatureMobile as BaseCreature);
+					}
 				}
 			}
 
@@ -391,7 +447,9 @@ namespace Server.Custom.Horde
 				var SpawnedTypes = new List<Type>(Count);
 
 				for (var i = 0; i < Count; ++i)
+				{
 					SpawnedTypes.Add(Reader.ReadObjectType());
+				}
 
 				return SpawnedTypes;
 			}
