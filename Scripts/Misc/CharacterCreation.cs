@@ -1,5 +1,6 @@
 #region References
 using Server.Accounting;
+using Server.Custom;
 using Server.Custom.Mobiles;
 using Server.Items;
 using Server.Mobiles;
@@ -167,8 +168,8 @@ namespace Server.Misc
             newChar.Player = true;
             newChar.AccessLevel = args.Account.AccessLevel;
             newChar.Female = args.Female;
-
-            newChar.Race = args.Race; //Sets body
+			
+			newChar.Race = CustomRaces.Human;
 
             newChar.Hue = args.Hue | 0x8000;
 
