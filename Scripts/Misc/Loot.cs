@@ -9,46 +9,6 @@ namespace Server
     {
         #region List definitions
 
-        #region SA equipment
-		private static readonly Type[] m_SAJewelryTypes = new[]
-        {
-            typeof(GargishRing), typeof(GargishBracelet)
-        };
-        public static Type[] SAJewelryTypes => m_SAJewelryTypes;
-		
-		public static readonly Type[] m_SAShieldTypes = new[] 
-		{
-            typeof(GargishChaosShield), typeof(GargishKiteShield), typeof(GargishOrderShield), typeof(GargishWoodenShield),
-            typeof(LargeStoneShield)
-        };
-        public static Type[] SAShieldTypes => m_SAShieldTypes;
-		
-        private static readonly Type[] m_SAWeaponTypes = new[]
-        {
-            typeof(DiscMace), typeof(GargishTalwar), typeof(Shortblade), typeof(DualPointedSpear), typeof(GlassStaff),
-            typeof(StoneWarSword), typeof(DualShortAxes), typeof(GlassSword), typeof(GargishDagger)
-        };
-        public static Type[] SAWeaponTypes => m_SAWeaponTypes;
-
-        private static readonly Type[] m_SARangedWeaponTypes = new[] { typeof(Boomerang), typeof(Cyclone), typeof(SoulGlaive), };
-        public static Type[] SARangedWeaponTypes => m_SARangedWeaponTypes;
-
-        private static readonly Type[] m_SAArmorTypes = new[]
-        {
-            typeof(GargishLeatherChest), typeof(GargishLeatherLegs), typeof(GargishLeatherArms), typeof(GargishLeatherKilt),
-            typeof(GargishStoneChest), typeof(GargishStoneLegs), typeof(GargishStoneArms),
-            typeof(GargishStoneKilt), typeof(GargishPlateChest), typeof(GargishPlateLegs), typeof(GargishPlateArms),
-            typeof(GargishPlateKilt), typeof(GargishNecklace), typeof( GargishEarrings )
-        };
-        public static Type[] SAArmorTypes => m_SAArmorTypes;
-
-        private static readonly Type[] m_SAClothingTypes = new[]
-        {
-            typeof(GargishClothChestArmor), typeof(GargishClothArmsArmor), typeof(GargishClothKiltArmor), typeof(GargishClothLegsArmor),
-        };
-        public static Type[] SAClothingTypes => m_SAClothingTypes;
-        #endregion
-
         #region ML equipment
         private static readonly Type[] m_MLWeaponTypes = new[]
         {
@@ -377,7 +337,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SAClothingTypes, m_ClothingTypes) as BaseClothing;
+                return Construct(m_ClothingTypes) as BaseClothing;
             }
 
             if (isMondain)
@@ -397,7 +357,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SARangedWeaponTypes, m_RangedWeaponTypes) as BaseWeapon;
+                return Construct(m_RangedWeaponTypes) as BaseWeapon;
             }
 
             if (isMondain)
@@ -417,7 +377,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SAWeaponTypes, m_WeaponTypes) as BaseWeapon;
+                return Construct(m_WeaponTypes) as BaseWeapon;
             }
 
             if (isMondain)
@@ -437,7 +397,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SAWeaponTypes, m_WeaponTypes, m_JewelryTypes, m_SAJewelryTypes);
+                return Construct(m_WeaponTypes, m_JewelryTypes);
             }
 
             if (isMondain)
@@ -457,7 +417,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SAJewelryTypes, m_JewelryTypes) as BaseJewel;
+                return Construct(m_JewelryTypes) as BaseJewel;
             }
 
             return Construct(m_JewelryTypes) as BaseJewel;
@@ -467,7 +427,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SAArmorTypes, m_ArmorTypes) as BaseArmor;
+                return Construct(m_ArmorTypes) as BaseArmor;
             }
 
             if (isMondain)
@@ -497,7 +457,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SAArmorTypes, m_ArmorTypes, m_HatTypes);
+                return Construct(m_ArmorTypes, m_HatTypes);
             }
 
             if (isMondain)
@@ -517,7 +477,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_ShieldTypes, m_SAShieldTypes) as BaseShield;
+                return Construct(m_ShieldTypes) as BaseShield;
             }
 
             return Construct(m_ShieldTypes) as BaseShield;
@@ -527,7 +487,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SAArmorTypes, m_ArmorTypes, m_ShieldTypes, m_SAShieldTypes) as BaseArmor;
+                return Construct(m_ArmorTypes, m_ShieldTypes) as BaseArmor;
             }
 
             if (isMondain)
@@ -547,7 +507,7 @@ namespace Server
         {
             if (isStygian)
             {
-                return Construct(m_SAArmorTypes, m_ArmorTypes, m_HatTypes, m_ShieldTypes, m_JewelryTypes, m_SAJewelryTypes, m_SAShieldTypes);
+                return Construct(m_ArmorTypes, m_HatTypes, m_ShieldTypes, m_JewelryTypes);
             }
 
             if (isMondain)
@@ -573,15 +533,11 @@ namespace Server
         {
             if (isStygian)
                 return Construct(
-                    m_SAWeaponTypes,
                     m_WeaponTypes,
-                    m_SARangedWeaponTypes,
                     m_RangedWeaponTypes,
-                    m_SAArmorTypes,
                     m_ArmorTypes,
                     m_HatTypes,
-                    m_ShieldTypes,
-                    m_SAShieldTypes);
+                    m_ShieldTypes);
 
             if (isMondain)
             {
@@ -623,18 +579,12 @@ namespace Server
             if (isStygian)
             {
                 return Construct(
-
-                    m_SAWeaponTypes,
                     m_WeaponTypes,
-                    m_SARangedWeaponTypes,
                     m_RangedWeaponTypes,
-                    m_SAArmorTypes,
                     m_ArmorTypes,
                     m_HatTypes,
                     m_ShieldTypes,
-                    m_JewelryTypes,
-                    m_SAJewelryTypes,
-                    m_SAShieldTypes);
+                    m_JewelryTypes);
             }
 
             if (isMondain)

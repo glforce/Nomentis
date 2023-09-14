@@ -949,8 +949,6 @@ namespace Server.Engines.Craft
             ForceNonExceptional(index);
             AddRecipe(index, (int)TailorRecipe.CuffsOfTheArchmage);
 
-
-
             #region Bottes
 			
 			#endregion
@@ -971,7 +969,6 @@ namespace Server.Engines.Craft
 			index = AddCraft(typeof(CentureDoreeLarge), "Divers", "Ceinture Dorée Large", 50.0, 70.0, typeof(Leather), "cuir", 10, "Vous n'avez pas assez de cuir.");
 
 			#endregion
-
 
 			#region Masques
 		
@@ -1006,76 +1003,6 @@ namespace Server.Engines.Craft
 
 
 			#endregion
-
-
-            #region Gargouille stuff
-
-
-
-
-
-  //          index = AddCraft(typeof(GargishRobe), 1111747, 1095256, 53.9, 78.9, typeof(Cloth), 1044455, 16, 1044287);
-  //          index = AddCraft(typeof(GargishFancyRobe), 1111747, 1095258, 53.9, 78.9, typeof(Cloth), 1044455, 16, 1044287);
-
-   //         AddCraft(typeof(GargoyleHalfApron), 1015283, 1099568, 20.7, 45.7, typeof(Cloth), 1044455, 6, 1044287);
-   //         AddCraft(typeof(GargishSash), 1015283, 1115388, 4.1, 29.1, typeof(Cloth), 1044455, 4, 1044287);
-
-
-
-   //         index = AddCraft(typeof(GargishLeatherArms), 1015293, 1095327, 53.9, 78.9, typeof(Leather), 1044462, 8, 1044463);
-
-   //         index = AddCraft(typeof(GargishLeatherChest), 1015293, 1095329, 70.5, 95.5, typeof(Leather), 1044462, 8, 1044463);
-
-   //         index = AddCraft(typeof(GargishLeatherLegs), 1015293, 1095333, 66.3, 91.3, typeof(Leather), 1044462, 10, 1044463);
-
-   //         index = AddCraft(typeof(GargishLeatherKilt), 1015293, 1095331, 58.0, 83.0, typeof(Leather), 1044462, 6, 1044463);
-
-   //         index = AddCraft(typeof(FemaleGargishLeatherArms), 1015293, 1095327, 53.9, 78.9, typeof(Leather), 1044462, 8, 1044463);
-
-   //         index = AddCraft(typeof(FemaleGargishLeatherChest), 1015293, 1095329, 70.5, 95.5, typeof(Leather), 1044462, 8, 1044463);
-
-   //         index = AddCraft(typeof(FemaleGargishLeatherLegs), 1015293, 1095333, 66.3, 91.3, typeof(Leather), 1044462, 10, 1044463);
-
-   //         index = AddCraft(typeof(FemaleGargishLeatherKilt), 1015293, 1095331, 58.0, 83.0, typeof(Leather), 1044462, 6, 1044463);
-
-   //         index = AddCraft(typeof(GargishLeatherWingArmor), 1015293, 1096662, 65.0, 90.0, typeof(Leather), 1044462, 12, 1044463);
-
-
-
-
-            #region Cloth Armor
-   //         index = AddCraft(typeof(GargishClothArmsArmor), 1111748, 1021027, 87.1, 137.1, typeof(Cloth), 1044455, 8, 1044287);
-     //       index = AddCraft(typeof(GargishClothChestArmor), 1111748, 1021029, 94.0, 144.0, typeof(Cloth), 1044455, 8, 1044287);
-
-  //          index = AddCraft(typeof(GargishClothLegsArmor), 1111748, 1021033, 91.2, 141.2, typeof(Cloth), 1044455, 10, 1044287);
-
-    //        index = AddCraft(typeof(GargishClothKiltArmor), 1111748, 1021031, 82.9, 132.9, typeof(Cloth), 1044455, 6, 1044287);
-
-    //        index = AddCraft(typeof(FemaleGargishClothArmsArmor), 1111748, 1021027, 87.1, 137.1, typeof(Cloth), 1044455, 8, 1044287);
-
-      //      index = AddCraft(typeof(FemaleGargishClothChestArmor), 1111748, 1021029, 94.0, 144.0, typeof(Cloth), 1044455, 8, 1044287);
-
-   //         index = AddCraft(typeof(FemaleGargishClothLegsArmor), 1111748, 1021033, 91.2, 141.2, typeof(Cloth), 1044455, 10, 1044287);
-
-    //         index = AddCraft(typeof(FemaleGargishClothKiltArmor), 1111748, 1021031, 82.9, 132.9, typeof(Cloth), 1044455, 6, 1044287);
-
-    //        index = AddCraft(typeof(GargishClothWingArmor), 1111748, 1115393, 65.0, 90.0, typeof(Cloth), 1044455, 12, 1044287);
-            #endregion
-
-
-
-
-
-            #endregion
-
-
-
-
-
-
-
-
-
 
             #endregion
 
