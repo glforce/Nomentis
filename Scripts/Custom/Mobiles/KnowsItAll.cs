@@ -12,14 +12,10 @@ namespace Server.Custom.Mobiles
 		[Constructable]
 		public KnowsItAll() : base("Knows it all")
 		{
+			Body = 0x190;
+			Name = NameList.RandomName("male");
 		}
 
-		protected override List<SkillName> TeachedSkills => Enumerable.Range(0, 58).Select(SkillID => (SkillName)SkillID).ToList();
-
-		protected override List<SBInfo> SBInfos => new List<SBInfo>();
-
-		public override void InitSBInfo()
-		{
-		}
+		protected override List<SkillName> TeachedSkills => Enumerable.Range(0, 58).Select(skillID => (SkillName)skillID).ToList();
 	}
 }

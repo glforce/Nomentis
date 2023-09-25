@@ -9,25 +9,27 @@ using Server.Mobiles;
 
 namespace Server.Custom.Mobiles
 {
-	public abstract class TeacherNPC : BaseVendor
+	public abstract class TeacherNPC : BaseCreature
 	{
-		protected TeacherNPC(string Title) : base(Title)
+		protected TeacherNPC(string title) : 
+			base(AIType.AI_Vendor, FightMode.None, 2, 1, 0.5, 5)
 		{
+			Title = title;
 		}
 
-		public TeacherNPC(Serial Serial) : base(Serial)
+		public TeacherNPC(Serial serial) : base(serial)
 		{
 		}
 
 		protected abstract List<SkillName> TeachedSkills { get; }
 
-		public override void GetContextMenuEntries(Mobile From, List<ContextMenuEntry> List)
+		public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
 		{
-			base.GetContextMenuEntries(From, List);
+			base.GetContextMenuEntries(from, list);
 
-			if (From is CustomPlayerMobile Mobile)
+			if (from is CustomPlayerMobile Mobile)
 			{
-				List.AddRange(
+				list.AddRange(
 					TeachedSkills
 					.Where(Skill => Mobile.CanLearnSkill(Skill))
 					.Select(Skill => new TeachSkillContextMenuEntry(Skill, Mobile))
@@ -35,14 +37,14 @@ namespace Server.Custom.Mobiles
 			}
 		}
 
-		public override void Serialize(GenericWriter Writer)
+		public override void Serialize(GenericWriter writer)
 		{
-			base.Serialize(Writer);
+			base.Serialize(writer);
 		}
 
-		public override void Deserialize(GenericReader Reader)
+		public override void Deserialize(GenericReader reader)
 		{
-			base.Deserialize(Reader);
+			base.Deserialize(reader);
 		}
 	}
 }
