@@ -46,7 +46,7 @@ namespace Server.Custom.Gump
 			}
 		}
 
-		public int ComputeSize(GumpSizeDimension Dimension, bool IncludePadding = false)
+		public int ComputeSize(GumpSizeDimension Dimension, bool IncludePadding = false, bool ParentSizeAvailable = false)
 		{
 			int Value = GetSize(Dimension);
 
@@ -56,12 +56,11 @@ namespace Server.Custom.Gump
 			}
 			else if (Value == GUMP_SIZE_FIT_PARENT)
 			{
-				if (Parent != null && Parent.GetSize(Dimension) != GUMP_SIZE_WRAP_CONTENT)
+				if (Parent != null && ParentSizeAvailable)
 				{
-					return Parent.ComputeSize(Dimension);
+					return Parent.ComputeSize(Dimension, false, true);
 				}
 
-				// Invalid
 				Value = 0;
 			}
 
@@ -148,7 +147,15 @@ namespace Server.Custom.Gump
 			Vertical
 		}
 
+		public enum GumpContainerAlignment
+		{
+			Center,
+			Start,
+			End
+		}
+
 		private GumpContainerDisposition ContainerDisposition;
+		private GumpContainerAlignment[] ContainerAligment = new GumpContainerAlignment[2] { GumpContainerAlignment.Start, GumpContainerAlignment.Start };
 		private List<GumpElement> Children = new List<GumpElement>();
 		private int SpaceBetween = 0;
 		private int Background = -1;
@@ -156,6 +163,18 @@ namespace Server.Custom.Gump
 		public ContainerGumpElement(GumpContainerDisposition ContainerDisposition = GumpContainerDisposition.Stacked)
 		{
 			this.ContainerDisposition = ContainerDisposition;
+		}
+
+		public ContainerGumpElement WithAlignment(GumpSizeDimension Dimension,  GumpContainerAlignment Alignment)
+		{
+			ContainerAligment[(int)Dimension] = Alignment;
+			return this;
+		}
+
+		public ContainerGumpElement WithAlignment(GumpContainerAlignment HorizontalAlignment, GumpContainerAlignment VerticalAlignment)
+		{
+			return WithAlignment(GumpSizeDimension.Width, HorizontalAlignment)
+				.WithAlignment(GumpSizeDimension.Height, VerticalAlignment);
 		}
 
 		public ContainerGumpElement WithChild(GumpElement Child)
@@ -206,40 +225,105 @@ namespace Server.Custom.Gump
 			{
 				Gump.AddBackground(X, Y, Width, Height, Background);
 			}
-			
+
+			int DirectionX = 1;
+			int DirectionY = 1;
+			var StartPaddingX = GumpPaddingDimension.Left;
+			var EndPaddingX = GumpPaddingDimension.Right;
+			var StartPaddingY = GumpPaddingDimension.Top;
+			var EndPaddingY = GumpPaddingDimension.Bottom;
+			bool CenterX = false;
+			bool CenterY = false;
+
+			switch(ContainerAligment[(int)GumpSizeDimension.Width])
+			{
+				case GumpContainerAlignment.Center:
+					if (ContainerDisposition == GumpContainerDisposition.Stacked)
+					{
+						X += Width / 2;
+					}
+					else
+					{
+						X += (Width - GetContentSize(GumpSizeDimension.Width)) / 2;
+					}
+					CenterX = true;
+					break;
+				case GumpContainerAlignment.Start:
+					X += GetPadding(GumpPaddingDimension.Left);
+					break;
+				case GumpContainerAlignment.End:
+					X += Width - GetPadding(GumpPaddingDimension.Right);
+					StartPaddingX = GumpPaddingDimension.Right;
+					EndPaddingX = GumpPaddingDimension.Left;
+					DirectionX = -1;
+					break;
+			}
+
+			switch (ContainerAligment[(int)GumpSizeDimension.Height])
+			{
+				case GumpContainerAlignment.Center:
+					if (ContainerDisposition == GumpContainerDisposition.Stacked)
+					{
+						Y += Height / 2;
+					}
+					else
+					{
+						Y += (Height - GetContentSize(GumpSizeDimension.Height)) / 2;
+					}
+					CenterY = true;
+					break;
+				case GumpContainerAlignment.Start:
+					Y += GetPadding(GumpPaddingDimension.Top);
+					break;
+				case GumpContainerAlignment.End:
+					Y += Height - GetPadding(GumpPaddingDimension.Bottom);
+					StartPaddingY = GumpPaddingDimension.Bottom;
+					EndPaddingY = GumpPaddingDimension.Top;
+					DirectionY = -1;
+					break;
+			}
+
 			foreach (GumpElement Child in Children)
 			{
-				int ChildWidth = Child.ComputeSize(GumpSizeDimension.Width);
-				int ChildHeight = Child.ComputeSize(GumpSizeDimension.Height);
+				int ChildWidth = Child.ComputeSize(GumpSizeDimension.Width, false, true);
+				int ChildHeight = Child.ComputeSize(GumpSizeDimension.Height, false, true);
 
-				int ChildX = 0;
-				int ChildY = 0;
+				int ChildX = X + Child.GetPadding(StartPaddingX) * DirectionX;
+				if (DirectionX < 0)
+				{
+					ChildX -= ChildWidth;
+				}
+				int ChildY = Y + Child.GetPadding(StartPaddingY) * DirectionY;
+				if (DirectionY < 0)
+				{
+					ChildY -= ChildHeight;
+				}
 
 				switch (ContainerDisposition)
 				{
 					case GumpContainerDisposition.Stacked:
-						ChildX = (X + Width / 2) - ChildWidth / 2;
-						ChildY = (Y + Height / 2) - ChildHeight / 2;
+						if (CenterX)
+						{
+							ChildX = X - (ChildWidth / 2);
+						}
+						if (CenterY)
+						{
+							ChildY = Y - (ChildHeight / 2);
+						}
 						break;
 					case GumpContainerDisposition.Horizontal:
-						ChildX = X + Child.GetPadding(GumpPaddingDimension.Left);
 						if (Child != Children.First())
 						{
-							ChildX += SpaceBetween;
+							ChildX += SpaceBetween * DirectionX;
 						}
-						X = ChildX + ChildWidth + Child.GetPadding(GumpPaddingDimension.Right);
-
-						ChildY = Y + Child.GetPadding(GumpPaddingDimension.Top);
+						X = ChildX + (ChildWidth + Child.GetPadding(EndPaddingX)) * DirectionX;
 						break;
 					case GumpContainerDisposition.Vertical:
-						ChildX = X + Child.GetPadding(GumpPaddingDimension.Left);
-
-						ChildY = Y + Child.GetPadding(GumpPaddingDimension.Top);
 						if (Child != Children.First())
 						{
-							ChildY += SpaceBetween;
+							ChildY += SpaceBetween * DirectionY;
 						}
-						Y = ChildY + ChildHeight + Child.GetPadding(GumpPaddingDimension.Bottom);
+						Y = ChildY + (ChildHeight + Child.GetPadding(EndPaddingY)) * DirectionY;
 						break;
 				}
 
@@ -257,6 +341,11 @@ namespace Server.Custom.Gump
 		public TextGumpElement()
 		{
 			WithSize(GUMP_SIZE_WRAP_CONTENT, 20);
+		}
+
+		public TextGumpElement(string Text):this()
+		{
+			WithText(Text);
 		}
 
 		public TextGumpElement WithText(string Text)
@@ -284,7 +373,7 @@ namespace Server.Custom.Gump
 				return GetSize(Dimension);
 			}
 
-			return Text.Length * 20;
+			return Text.Length * 12;
 		}
 
 		public override void AddToGump(Gumps.Gump Gump, int X, int Y, int Width, int Height)
@@ -410,12 +499,16 @@ namespace Server.Custom.Gump
 			this.Y = Y;
 
 			WithSize(GUMP_SIZE_WRAP_CONTENT, GUMP_SIZE_WRAP_CONTENT)
+				.WithAlignment(GumpContainerAlignment.Center, GumpContainerAlignment.Center)
 				.WithPadding(10);
 		}
 
 		public void Build(Gumps.Gump Gump)
 		{
-			AddToGump(Gump, X, Y, ComputeSize(GumpSizeDimension.Width), ComputeSize(GumpSizeDimension.Height));
+			int RealWidth = ComputeSize(GumpSizeDimension.Width, true);
+			int RealHeight = ComputeSize(GumpSizeDimension.Height, true);
+
+			AddToGump(Gump, X, Y, RealWidth, RealHeight);
 		}
 	}
 }

@@ -2,68 +2,103 @@ using Server.Network;
 using Server.Custom.Evolution;
 using System.Linq;
 using Server.Custom.Mobiles;
+using Server.Custom.Gump;
+using System.Collections.Generic;
+using Server.Items;
+using System;
 
 namespace Server.Gumps
 {
-	public class ExperienceTableGump : CustomBaseGump
+	public class ExperienceTableGump : CustomPlayerMobileGump
 	{
-		private CustomPlayerMobile From;
+		private const int BUTTON_ID_PREVIOUS = 1;
+		private const int BUTTON_ID_NEXT = 2;
+
 		private int Page;
 
 		public ExperienceTableGump(CustomPlayerMobile From, int Page = 0)
-			: base("Table des niveaux", 560, 622, true)
+			: base(From, 50, 50, "Table des niveaux")
 		{
-			From.CloseGump(typeof(ExperienceTableGump));
-
-			this.From = From;
 			this.Page = Page;
-
-			int x = XBase;
-			int y = YBase;
-
-			AddHtmlTexteColored(x + 10, y + 20, 300, "Niveau", "#ffffff");
-			AddHtmlTexteColored(x + 200, y + 20, 300, "FE requises", "#ffffff");
-			AddHtmlTexteColored(x + 400, y + 20, 300, "Skill Cap", "#ffffff");
 
 			int PlayerLevel = ExperienceSystem.GetLevel(From);
 
-			int Line = 0;
-
-			ExperienceSystem.LevelSpecs.Skip(Page * 28 - 1)
+			int FirstIndex = Page * 28;
+			var LevelSpecs = ExperienceSystem.LevelSpecs.Skip(FirstIndex)
 				.Take(28)
-				.ToList()
-				.ForEach(Spec =>
+				.ToList();
+
+			Func<int, string> ColorFunction = (int LevelIndex) =>
+			{
+				return LevelIndex + 1 == PlayerLevel ? "#ffcc00" : "#ffffff";
+			};
+
+			var Table = BuildTable(
+				new List<string> { "Niveau", "Expérience requise", "Skill cap" },
+				LevelSpecs,
+				(Index, Spec) =>
 				{
-					int CurrentLevel = Line + 1;
+					return new TextGumpElement((Index + FirstIndex + 1).ToString())
+					.WithColor(ColorFunction(Index));
+				},
+				(Index, Spec) =>
+				{
+					return new TextGumpElement(Spec.RequiredExperience.ToString())
+					.WithColor(ColorFunction(Index));
+				},
+				(Index, Spec) =>
+				{
+					return new TextGumpElement(Spec.SkillCap.ToString())
+					.WithColor(ColorFunction(Index));
+				}
+			);
 
-					string Color = CurrentLevel == PlayerLevel ? "#ffcc00" : "#ffffff";
-
-					AddHtmlTexteColored(x + 10, y + 40 + Line * 20, 300, CurrentLevel.ToString(), Color);
-					AddHtmlTexteColored(x + 200, y + 40 + Line * 20, 300, Spec.RequiredExperience.ToString(), Color);
-					AddHtmlTexteColored(x + 400, y + 40 + Line * 20, 300, Spec.SkillCap.ToString(), Color);
-					Line++;
-				});
+			var BottomActions = new ContainerGumpElement()
+				.WithSize(GumpElement.GUMP_SIZE_FIT_PARENT, GumpElement.GUMP_SIZE_WRAP_CONTENT);
 
 			if (Page != 0)
 			{
-				AddButton(x + 5, y + 610, 1, 4506);
+				BottomActions.WithChild(
+					new ContainerGumpElement(ContainerGumpElement.GumpContainerDisposition.Horizontal)
+					.WithSize(GumpElement.GUMP_SIZE_FIT_PARENT, GumpElement.GUMP_SIZE_WRAP_CONTENT)
+					.WithAlignment(ContainerGumpElement.GumpContainerAlignment.Start, ContainerGumpElement.GumpContainerAlignment.Center)
+					.WithChild(new ButtonGumpElement(BUTTON_ID_PREVIOUS)
+					.WithSize(50, 50)
+					.WithStateID(4506))
+					);
 			}
 
 			if (ExperienceSystem.LevelSpecs.Count > (Page + 1) * 28)
 			{
-				AddButton(x + 535, y + 610, 2, 4502);
+				BottomActions.WithChild(
+					new ContainerGumpElement(ContainerGumpElement.GumpContainerDisposition.Horizontal)
+					.WithSize(GumpElement.GUMP_SIZE_FIT_PARENT, GumpElement.GUMP_SIZE_WRAP_CONTENT)
+					.WithAlignment(ContainerGumpElement.GumpContainerAlignment.End, ContainerGumpElement.GumpContainerAlignment.Center)
+					.WithChild(new ButtonGumpElement(BUTTON_ID_NEXT)
+					.WithSize(50, 50)
+					.WithStateID(4502))
+				);
 			}
+
+			Root.WithChild(new ContainerGumpElement(ContainerGumpElement.GumpContainerDisposition.Vertical)
+					.WithSize(GumpElement.GUMP_SIZE_WRAP_CONTENT, GumpElement.GUMP_SIZE_WRAP_CONTENT)
+					.WithChildren(new List<GumpElement>
+					{
+						Table,
+						BottomActions
+					}));
+
+			Build();
 		}
 
-		public override void OnResponse(NetState Sender, RelayInfo Info)
+		override protected void OnButtonClicked(int ID)
 		{
-			switch (Info.ButtonID)
-			{
-				case 1:
-					Sender.Mobile.SendGump(new ExperienceTableGump(From, Page - 1));
+			switch(ID) {
+				case BUTTON_ID_PREVIOUS:
+					OpenGump(From => new ExperienceTableGump(From, Page - 1));
 					break;
-				case 2:
-					Sender.Mobile.SendGump(new ExperienceTableGump(From, Page + 1));
+				case BUTTON_ID_NEXT:
+					OpenGump(From => new ExperienceTableGump(From, Page + 1));
 					break;
 			}
 		}
